@@ -38,10 +38,16 @@ As soon as someone asks me something. :)
 
 == Changelog ==
 
+= 1.0.1 =
+* Changed priority on post_gallery filter from 10 to 999 to help ensure it runs after anything else
+
 = 1.0.0 =
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.0.1 =
+* Changed priority on post_gallery filter from 10 to 999 to help ensure it runs after anything else
 
 = 1.0.0 =
 * Initial release
