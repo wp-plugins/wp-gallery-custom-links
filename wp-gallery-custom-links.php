@@ -49,7 +49,7 @@ class WPGalleryCustomLinks {
 		add_filter( 'attachment_fields_to_save', array( 'WPGalleryCustomLinks', 'apply_filter_attachment_fields_to_save' ), null , 2);
 		
 		// Add the filter for when the post_gallery is written out
-		add_filter( 'post_gallery', array( 'WPGalleryCustomLinks', 'apply_filter_post_gallery' ), 10, 2 );
+		add_filter( 'post_gallery', array( 'WPGalleryCustomLinks', 'apply_filter_post_gallery' ), 999, 2 );
 	} // End function init()
 	
 	public static function apply_filter_attachment_fields_to_edit( $form_fields, $post ) {
