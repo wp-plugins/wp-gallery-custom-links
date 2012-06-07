@@ -4,7 +4,7 @@ Donate link: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-li
 Tags: gallery links, gallery link, gallery
 Requires at least: 3.3.2
 Tested up to: 3.3.2
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,6 +38,9 @@ As soon as someone asks me something. :)
 
 == Changelog ==
 
+= 1.0.2 =
+* Fixed an issue with two undefined variables
+
 = 1.0.1 =
 * Changed priority on post_gallery filter from 10 to 999 to help ensure it runs after anything else
 
@@ -45,6 +48,9 @@ As soon as someone asks me something. :)
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.0.2 =
+* Fixed an issue with two undefined variables
 
 = 1.0.1 =
 * Changed priority on post_gallery filter from 10 to 999 to help ensure it runs after anything else
