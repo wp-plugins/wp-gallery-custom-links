@@ -3,7 +3,7 @@
 Plugin Name: WP Gallery Custom Links
 Plugin URI: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-links/
 Description: Specifiy custom links for WordPress gallery images (instead of attachment or file only).
-Version: 1.0.2
+Version: 1.0.3
 Author: Four Lights Web Development
 Author URI: http://www.fourlightsweb.com
 License: GPL2
@@ -71,6 +71,10 @@ class WPGalleryCustomLinks {
 	
 	public static function apply_filter_post_gallery( $output, $attr ) {
 		global $post;
+		
+		// Apparently there's weird cases where $post may not be set?
+		// Adding this check just in case...
+		if ( ! $post ) return ' ';
 		
 		if( self::$first_call ) {
 			// Our first run, so the gallery function thinks it's being

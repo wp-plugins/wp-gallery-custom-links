@@ -4,7 +4,7 @@ Donate link: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-li
 Tags: gallery links, gallery link, gallery
 Requires at least: 3.3.2
 Tested up to: 3.3.2
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,6 +38,9 @@ As soon as someone asks me something. :)
 
 == Changelog ==
 
+= 1.0.3 =
+* Added a check to return a simple space in the event $post is undefined
+
 = 1.0.2 =
 * Fixed an issue with two undefined variables
 
@@ -48,6 +51,9 @@ As soon as someone asks me something. :)
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.0.3 =
+* Added a check to return a simple space in the event $post is undefined
 
 = 1.0.2 =
 * Fixed an issue with two undefined variables
