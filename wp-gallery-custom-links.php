@@ -72,10 +72,6 @@ class WPGalleryCustomLinks {
 	public static function apply_filter_post_gallery( $output, $attr ) {
 		global $post;
 		
-		// Apparently there's weird cases where $post may not be set?
-		// Adding this check just in case...
-		if ( ! $post ) return ' ';
-		
 		if( self::$first_call ) {
 			// Our first run, so the gallery function thinks it's being
 			// overwritten. Set the variable to prevent actual endless
@@ -91,6 +87,21 @@ class WPGalleryCustomLinks {
 			self::$first_call = true;
 			return $output;
 		}
+		
+		// Get the shortcode attributes
+		extract( shortcode_atts( array(), $attr ) );
+		
+		// Determine what our postID for attachments is - either
+		// from our shortcode attr or from $post->ID. If we don't
+		// have one from either of those places...something weird
+		// is going on, so just bail. 
+		if( isset( $attr['id'] ) ) {
+			$post_id = intval( $attr['id'] );
+		} else if( $post ) {
+			$post_id = intval( $post->ID );
+		} else {
+			return ' ';
+		}
 
 		// Get the normal gallery shortcode function
 		if ( isset( $GLOBALS['shortcode_tags'] ) && isset( $GLOBALS['shortcode_tags']['gallery'] ) ) {
@@ -99,13 +110,9 @@ class WPGalleryCustomLinks {
 		
 		// Run whatever gallery shortcode function has been set up, 
 		// default, theme-specified or whatever
-		$output = call_user_func( $gallery_shortcode_function, $attr );
-		
-		// Get the shortcode attributes - really we just need "link"
-		extract( shortcode_atts( array(), $attr ) );
+		$output = call_user_func( $gallery_shortcode_function, $attr );		
 		
 		// Get the attachments for this post
-		$post_id = intval( $post->ID );
 		$attachments = get_children( array( 'post_parent' => $post_id, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image' ) );
 		foreach ( $attachments as $id => $attachment ) {
 			$link = '';
