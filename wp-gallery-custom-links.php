@@ -159,6 +159,6 @@ class WPGalleryCustomLinks {
 		} // End foreach post attachment
 
 		return $output;
-	} // End function apply_custom_links()
+	} // End function apply_filter_post_gallery()
 	
 } // End class WPGalleryCustomLinks
