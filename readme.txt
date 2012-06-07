@@ -4,7 +4,7 @@ Donate link: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-li
 Tags: gallery links, gallery link, gallery
 Requires at least: 3.3.2
 Tested up to: 3.3.2
-Stable tag: 1.0.4
+Stable tag: 1.0.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,6 +38,9 @@ As soon as someone asks me something. :)
 
 == Changelog ==
 
+= 1.0.5 =
+* Moving the $post_id code above first_call to avoid messing that up if a return does occur due to a missing post_id
+
 = 1.0.4 =
 * The "id" attribute of the gallery shortcode is now supported
 
@@ -54,6 +57,9 @@ As soon as someone asks me something. :)
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.0.5 =
+* Moving the $post_id code above first_call to avoid messing that up if a return does occur due to a missing post_id
 
 = 1.0.4 =
 * The "id" attribute of the gallery shortcode is now supported
