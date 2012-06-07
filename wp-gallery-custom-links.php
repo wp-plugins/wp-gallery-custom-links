@@ -72,6 +72,21 @@ class WPGalleryCustomLinks {
 	public static function apply_filter_post_gallery( $output, $attr ) {
 		global $post;
 		
+		// Get the shortcode attributes
+		extract( shortcode_atts( array(), $attr ) );
+		
+		// Determine what our postID for attachments is - either
+		// from our shortcode attr or from $post->ID. If we don't
+		// have one from either of those places...something weird
+		// is going on, so just bail. 
+		if( isset( $attr['id'] ) ) {
+			$post_id = intval( $attr['id'] );
+		} else if( $post ) {
+			$post_id = intval( $post->ID );
+		} else {
+			return ' ';
+		}
+		
 		if( self::$first_call ) {
 			// Our first run, so the gallery function thinks it's being
 			// overwritten. Set the variable to prevent actual endless
@@ -86,21 +101,6 @@ class WPGalleryCustomLinks {
 			// same next time.
 			self::$first_call = true;
 			return $output;
-		}
-		
-		// Get the shortcode attributes
-		extract( shortcode_atts( array(), $attr ) );
-		
-		// Determine what our postID for attachments is - either
-		// from our shortcode attr or from $post->ID. If we don't
-		// have one from either of those places...something weird
-		// is going on, so just bail. 
-		if( isset( $attr['id'] ) ) {
-			$post_id = intval( $attr['id'] );
-		} else if( $post ) {
-			$post_id = intval( $post->ID );
-		} else {
-			return ' ';
 		}
 
 		// Get the normal gallery shortcode function
