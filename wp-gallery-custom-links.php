@@ -114,11 +114,11 @@ class WPGalleryCustomLinks {
 		
 		// Get the attachments for this post
 		$attachments = get_children( array( 'post_parent' => $post_id, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image' ) );
-		foreach ( $attachments as $id => $attachment ) {
+		foreach ( $attachments as $attachment_id => $attachment ) {
 			$link = '';
 			
 			// See if we have a custom url for this attachment image
-			$attachment_meta = get_post_meta( $id, '_gallery_link_url', true );
+			$attachment_meta = get_post_meta( $attachment_id, '_gallery_link_url', true );
 			if( $attachment_meta ) {
 				$link = $attachment_meta;
 			}
@@ -126,46 +126,60 @@ class WPGalleryCustomLinks {
 			if( $link != '' ) {
 				// If we have a non-blank custom url, swap out the href on the image
 				// in the generated gallery code with the custom url
-				if( isset( $attr['link'] ) && $attr['link'] == 'file' ) {
-					// Get file href
-					list( $needle ) = wp_get_attachment_image_src( $id, '' );
-				} else {
-					// Get the attachment href
-					$needle = get_attachment_link( $id );
-				} // End if gallery setting is to file or attachment
 				
-				// Build the regex for matching/replacing
-				$needle = preg_quote( $needle );
-				$needle = str_replace( '/', '\/', $needle );
-				$needle = '/href\s*=\s*["\']' . $needle . '["\']/';
-				if( preg_match( $needle, $output ) > 0 ) {
-					// If we found the href to swap out, perform
-					// the href replacement
-					$output = preg_replace( $needle, 'href="' . $link . '"', $output );
-					
-					// ...also remove any rel attribute and *box
-					// classes so (most) lightboxes won't kick in:
-					
-					// Clean up the href for regex-ing
-					$link = preg_quote( $link );
-					$link = str_replace( '/', '\/', $link );
-					
-					// href comes before rel
-					$output = preg_replace( '/(<a[^>]*href="' . $link . '"[^>]*)rel\s*=\s*["\'][^"\']*["\']([^>]*>)/', '$1$2', $output );
-					
-					// href comes after rel
-					$output = preg_replace( '/(<a[^>]*)rel\s*=\s*["\'][^"\']*["\']([^>]*href="' . $link . '"[^>]*>)/', '$1$2', $output );
-					
-					// href comes before class
-					$output = preg_replace( '/(<a[^>]*href="' . $link . '"[^>]*class\s*=\s*["\'][^"\']*)box([^"\']*["\'][^>]*>)/', '$1$2', $output );
-					
-					// href comes after class
-					$output = preg_replace( '/(<a[^>]*class\s*=\s*["\'][^"\']*)box([^"\']*["\'][^>]*href="' . $link . '"[^>]*>)/', '$1$2', $output );
-				} // End if we found the attachment to replace in the output
+				// Replace the attachment href
+				$needle = get_attachment_link( $attachment_id );
+				$output = self::replace_link( $needle, $link, $output );
+				
+				// Replace the file href
+				list( $needle ) = wp_get_attachment_image_src( $attachment_id, '' );
+				$output = self::replace_link( $needle, $link, $output );
+
+				// Replace all possible file sizes - some themes etc.
+				// may use sizes other than the full version
+				$attachment_metadata = wp_get_attachment_metadata( $attachment_id );
+				$attachment_sizes = $attachment_metadata['sizes'];
+				foreach( $attachment_sizes as $attachment_size => $attachment_info ) {
+					list( $needle ) = wp_get_attachment_image_src( $attachment_id, $attachment_size );
+					$output = self::replace_link( $needle, $link, $output );
+				}				
 			} // End if we have a custom url to swap in
 		} // End foreach post attachment
 
 		return $output;
 	} // End function apply_filter_post_gallery()
+	
+	private static function replace_link( $default_link, $custom_link, $output ) {
+		// Build the regex for matching/replacing
+		$needle = preg_quote( $default_link );
+		$needle = str_replace( '/', '\/', $needle );
+		$needle = '/href\s*=\s*["\']' . $needle . '["\']/';
+		if( preg_match( $needle, $output ) > 0 ) {
+			// If we found the href to swap out, perform
+			// the href replacement
+			$output = preg_replace( $needle, 'href="' . $custom_link . '"', $output );
+			
+			// ...also remove any rel attribute and *box
+			// classes so (most) lightboxes won't kick in:
+			
+			// Clean up the href for regex-ing
+			$custom_link = preg_quote( $custom_link );
+			$custom_link = str_replace( '/', '\/', $custom_link );
+			
+			// href comes before rel
+			$output = preg_replace( '/(<a[^>]*href="' . $custom_link . '"[^>]*)rel\s*=\s*["\'][^"\']*["\']([^>]*>)/', '$1$2', $output );
+			
+			// href comes after rel
+			$output = preg_replace( '/(<a[^>]*)rel\s*=\s*["\'][^"\']*["\']([^>]*href="' . $custom_link . '"[^>]*>)/', '$1$2', $output );
+			
+			// href comes before class
+			$output = preg_replace( '/(<a[^>]*href="' . $custom_link . '"[^>]*class\s*=\s*["\'][^"\']*)box([^"\']*["\'][^>]*>)/', '$1$2', $output );
+			
+			// href comes after class
+			$output = preg_replace( '/(<a[^>]*class\s*=\s*["\'][^"\']*)box([^"\']*["\'][^>]*href="' . $custom_link . '"[^>]*>)/', '$1$2', $output );
+		} // End if we found the attachment to replace in the output
+		
+		return $output;
+	} // End function replace_link()
 	
 } // End class WPGalleryCustomLinks
