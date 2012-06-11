@@ -3,7 +3,7 @@
 Plugin Name: WP Gallery Custom Links
 Plugin URI: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-links/
 Description: Specifiy custom links for WordPress gallery images (instead of attachment or file only).
-Version: 1.0.5
+Version: 1.1.0
 Author: Four Lights Web Development
 Author URI: http://www.fourlightsweb.com
 License: GPL2
@@ -152,7 +152,7 @@ class WPGalleryCustomLinks {
 		$output .= "jQuery(document).ready(function () {\n";
 		$output .= "	jQuery('a.no-lightbox').unbind();\n";
 		$output .= "	jQuery('a.no-lightbox').off();\n";
-		$output .= "	jQuery('a.no-lightbox').click(function(){window.location=this.href; return false;});";
+		$output .= "	jQuery('a.no-lightbox').click(function(){window.location=this.href; return false;});\n";
 		$output .= "});";
 		$output .= "/* ]]> */\n";
 		$output .= "</script>";

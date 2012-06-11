@@ -4,7 +4,7 @@ Donate link: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-li
 Tags: gallery links, gallery link, gallery
 Requires at least: 3.3.2
 Tested up to: 3.3.2
-Stable tag: 1.0.5
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -17,9 +17,9 @@ is included in a gallery, the "Gallery Link URL" value will be used as the link 
 the image instead of the raw file or the attachment post. It's designed to work
 even if customizations have been made via the post_gallery filter; instead of
 replacing the entire post_gallery function, it calls the normal function
-and simply replaces the link hrefs in the generated output.  Any "rel" attribute
-or *box classes are also stripped to "break" any lightbox functionality and 
-allow the link to function as a regular link.
+and simply replaces the link hrefs in the generated output.  Javascript is 
+also in place to attempt to remove any lightbox functionality on the custom link
+and allow it to function as a regular link.
 
 == Installation ==
 
@@ -37,6 +37,10 @@ As soon as someone asks me something. :)
 1. The added "Gallery Link URL" field.
 
 == Changelog ==
+
+= 1.1.0 =
+* Added support for replacing links to all sizes of an uploaded image instead of the full version only
+* Replaced lightbox removal with a more advanced javascript method
 
 = 1.0.5 =
 * Moving the $post_id code above first_call to avoid messing that up if a return does occur due to a missing post_id
@@ -57,6 +61,10 @@ As soon as someone asks me something. :)
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+* Added support for replacing links to all sizes of an uploaded image instead of the full version only
+* Replaced lightbox removal with a more advanced javascript method
 
 = 1.0.5 =
 * Moving the $post_id code above first_call to avoid messing that up if a return does occur due to a missing post_id
