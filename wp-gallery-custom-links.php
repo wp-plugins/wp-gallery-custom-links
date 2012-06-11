@@ -145,6 +145,17 @@ class WPGalleryCustomLinks {
 				}				
 			} // End if we have a custom url to swap in
 		} // End foreach post attachment
+		
+		// Javascript to override lightboxes
+		$output .= "<script type=\"text/javascript\">\n";
+		$output .= "/* <![CDATA[ */\n";
+		$output .= "jQuery(document).ready(function () {\n";
+		$output .= "	jQuery('a.no-lightbox').unbind();\n";
+		$output .= "	jQuery('a.no-lightbox').off();\n";
+		$output .= "	jQuery('a.no-lightbox').click(function(){window.location=this.href; return false;});";
+		$output .= "});";
+		$output .= "/* ]]> */\n";
+		$output .= "</script>";
 
 		return $output;
 	} // End function apply_filter_post_gallery()
@@ -155,28 +166,26 @@ class WPGalleryCustomLinks {
 		$needle = str_replace( '/', '\/', $needle );
 		$needle = '/href\s*=\s*["\']' . $needle . '["\']/';
 		if( preg_match( $needle, $output ) > 0 ) {
-			// If we found the href to swap out, perform
-			// the href replacement
+			// If we found the href to swap out, perform the href replacement,
+			// and add some javascript to prevent lightboxes from kicking in
 			$output = preg_replace( $needle, 'href="' . $custom_link . '"', $output );
 			
-			// ...also remove any rel attribute and *box
-			// classes so (most) lightboxes won't kick in:
-			
-			// Clean up the href for regex-ing
+			// Clean up the new href for regex-ing
 			$custom_link = preg_quote( $custom_link );
 			$custom_link = str_replace( '/', '\/', $custom_link );
 			
-			// href comes before rel
-			$output = preg_replace( '/(<a[^>]*href="' . $custom_link . '"[^>]*)rel\s*=\s*["\'][^"\']*["\']([^>]*>)/', '$1$2', $output );
-			
-			// href comes after rel
-			$output = preg_replace( '/(<a[^>]*)rel\s*=\s*["\'][^"\']*["\']([^>]*href="' . $custom_link . '"[^>]*>)/', '$1$2', $output );
-			
-			// href comes before class
-			$output = preg_replace( '/(<a[^>]*href="' . $custom_link . '"[^>]*class\s*=\s*["\'][^"\']*)box([^"\']*["\'][^>]*>)/', '$1$2', $output );
-			
-			// href comes after class
-			$output = preg_replace( '/(<a[^>]*class\s*=\s*["\'][^"\']*)box([^"\']*["\'][^>]*href="' . $custom_link . '"[^>]*>)/', '$1$2', $output );
+			// Add a class to the link so we can manipulate it with
+			// javascript later
+			if( preg_match( '/<a[^>]*href="' . $custom_link . '"[^>]*class\s*=\s*["\'][^"\']*["\'][^>]*>/', $output ) > 0 ) {
+				// href comes before class
+				$output = preg_replace( '/(<a[^>]*href="' . $custom_link . '"[^>]*class\s*=\s*["\'][^"\']*)(["\'][^>]*>)/', '$1no-lightbox$2', $output );
+			} elseif( preg_match( '/<a[^>]*class\s*=\s*["\'][^"\']*["\'][^>]*href="' . $custom_link . '"[^>]*>/', $output ) > 0 ) {
+				// href comes after class
+				$output = preg_replace( '/(<a[^>]*class\s*=\s*["\'][^"\']*)(["\'][^>]*href="' . $custom_link . '"[^>]*>)/', '$1no-lightbox$2', $output );
+			} else {
+				// No previous class
+				$output = preg_replace( '/(<a[^>]*href="' . $custom_link . '"[^>]*)(>)/', '$1 class="no-lightbox"$2', $output );
+			} // End if we have a class on the a tag or not
 		} // End if we found the attachment to replace in the output
 		
 		return $output;
