@@ -4,7 +4,7 @@ Donate link: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-li
 Tags: gallery links, gallery link, gallery
 Requires at least: 3.3.2
 Tested up to: 3.3.2
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,6 +38,10 @@ As soon as someone asks me something. :)
 
 == Changelog ==
 
+= 1.1.1 =
+* Fixed an error that occurred when an images were small enough to only have one size
+* Tested with WordPress 3.4
+
 = 1.1.0 =
 * Added support for replacing links to all sizes of an uploaded image instead of the full version only
 * Replaced lightbox removal with a more advanced javascript method
@@ -61,6 +65,10 @@ As soon as someone asks me something. :)
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.1.1 =
+* Fixed an error that occurred when an images were small enough to only have one size
+* Tested with WordPress 3.4
 
 = 1.1.0 =
 * Added support for replacing links to all sizes of an uploaded image instead of the full version only

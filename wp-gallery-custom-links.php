@@ -3,7 +3,7 @@
 Plugin Name: WP Gallery Custom Links
 Plugin URI: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-links/
 Description: Specifiy custom links for WordPress gallery images (instead of attachment or file only).
-Version: 1.1.0
+Version: 1.1.1
 Author: Four Lights Web Development
 Author URI: http://www.fourlightsweb.com
 License: GPL2
@@ -138,11 +138,15 @@ class WPGalleryCustomLinks {
 				// Replace all possible file sizes - some themes etc.
 				// may use sizes other than the full version
 				$attachment_metadata = wp_get_attachment_metadata( $attachment_id );
-				$attachment_sizes = $attachment_metadata['sizes'];
-				foreach( $attachment_sizes as $attachment_size => $attachment_info ) {
-					list( $needle ) = wp_get_attachment_image_src( $attachment_id, $attachment_size );
-					$output = self::replace_link( $needle, $link, $output );
-				}				
+				if( $attachment_metadata !== false && isset( $attachment_metadata['sizes'] ) ) {
+					$attachment_sizes = $attachment_metadata['sizes'];
+					if( is_array( $attachment_sizes ) && count( $attachment_sizes ) > 0 ) {
+						foreach( $attachment_sizes as $attachment_size => $attachment_info ) {
+							list( $needle ) = wp_get_attachment_image_src( $attachment_id, $attachment_size );
+							$output = self::replace_link( $needle, $link, $output );
+						} // End of foreach attachment size
+					} // End if we have attachment sizes
+				} // End if we have attachment metadata (specifically sizes)
 			} // End if we have a custom url to swap in
 		} // End foreach post attachment
 		
