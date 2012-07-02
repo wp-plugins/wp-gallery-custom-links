@@ -28,9 +28,12 @@ and allow it to function as a regular link.
 
 == Frequently Asked Questions ==
 
-= When will you have FAQs? =
+= Will this plugin work with my theme's galleries? =
 
-As soon as someone asks me something. :)
+This plugin was designed for use with 1) WordPress's [gallery] shortcode and 2) images
+attached to the post/page.  Some themes use these features, and others
+have their own proprietary way of saving gallery images and drawing out the gallery.
+Provided your theme meets the criteria above, the plugin *should* work with it.
 
 == Screenshots ==
 
