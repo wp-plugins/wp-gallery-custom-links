@@ -4,7 +4,7 @@ Donate link: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-li
 Tags: gallery links, gallery link, gallery
 Requires at least: 3.3.2
 Tested up to: 3.4.1
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,6 +38,9 @@ As soon as someone asks me something. :)
 
 == Changelog ==
 
+= 1.1.2 =
+* Added a check to prevent javascript from showing up in feeds.
+
 = 1.1.1 =
 * Fixed an error that occurred when an images were small enough to only have one size
 * Tested with WordPress 3.4
@@ -65,6 +68,9 @@ As soon as someone asks me something. :)
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.1.2 =
+* Added a check to prevent javascript from showing up in feeds.
 
 = 1.1.1 =
 * Fixed an error that occurred when an images were small enough to only have one size

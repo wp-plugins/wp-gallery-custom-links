@@ -3,7 +3,7 @@
 Plugin Name: WP Gallery Custom Links
 Plugin URI: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-links/
 Description: Specifiy custom links for WordPress gallery images (instead of attachment or file only).
-Version: 1.1.1
+Version: 1.1.2
 Author: Four Lights Web Development
 Author URI: http://www.fourlightsweb.com
 License: GPL2
@@ -151,15 +151,19 @@ class WPGalleryCustomLinks {
 		} // End foreach post attachment
 		
 		// Javascript to override lightboxes
-		$output .= "<script type=\"text/javascript\">\n";
-		$output .= "/* <![CDATA[ */\n";
-		$output .= "jQuery(document).ready(function () {\n";
-		$output .= "	jQuery('a.no-lightbox').unbind();\n";
-		$output .= "	jQuery('a.no-lightbox').off();\n";
-		$output .= "	jQuery('a.no-lightbox').click(function(){window.location=this.href; return false;});\n";
-		$output .= "});";
-		$output .= "/* ]]> */\n";
-		$output .= "</script>";
+		// Note: Make sure this don't go into feeds, since it could
+		// cause Mailchimp etc. to not work properly.
+		if( ! is_feed() ) {
+			$output .= "<script type=\"text/javascript\">\n";
+			$output .= "/* <![CDATA[ */\n";
+			$output .= "jQuery(document).ready(function () {\n";
+			$output .= "	jQuery('a.no-lightbox').unbind();\n";
+			$output .= "	jQuery('a.no-lightbox').off();\n";
+			$output .= "	jQuery('a.no-lightbox').click(function(){window.location=this.href; return false;});\n";
+			$output .= "});";
+			$output .= "/* ]]> */\n";
+			$output .= "</script>";
+		} // End if it's not a feed
 
 		return $output;
 	} // End function apply_filter_post_gallery()
