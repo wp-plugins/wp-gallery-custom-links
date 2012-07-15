@@ -30,10 +30,18 @@ and allow it to function as a regular link.
 
 = Will this plugin work with my theme's galleries? =
 
-This plugin was designed for use with 1) WordPress's [gallery] shortcode and 2) images
+Possibly.  WP Gallery Custom Links plugin was designed for use with 
+1) WordPress's [gallery] shortcode and 2) images
 attached to the post/page.  Some themes use these features, and others
 have their own proprietary way of saving gallery images and drawing out the gallery.
 Provided your theme meets the criteria above, the plugin *should* work with it.
+
+= Will this plugin work with NextGen galleries? =
+
+No, this plugin is *not* compatible with NextGen galleries.  WP Gallery Custom Links was
+designed for use with 1) WordPress's [gallery] shortcode and 2) images
+attached to the post/page.  NextGen galleries uses its own [nggallery] etc. shortcodes
+that function outside of the WordPress [gallery] shortcode.
 
 == Screenshots ==
 
