@@ -3,7 +3,7 @@
 Plugin Name: WP Gallery Custom Links
 Plugin URI: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-links/
 Description: Specifiy custom links for WordPress gallery images (instead of attachment or file only).
-Version: 1.1.2
+Version: 1.2.0
 Author: Four Lights Web Development
 Author URI: http://www.fourlightsweb.com
 License: GPL2
@@ -57,7 +57,17 @@ class WPGalleryCustomLinks {
 			'label' => __( 'Gallery Link URL' ),
 			'input' => 'text',
 			'value' => get_post_meta( $post->ID, '_gallery_link_url', true ),
-			'helps' => 'Will replace "Image File" or "Attachment Page" link for this thumbnail in the gallery.'
+			'helps' => 'Will replace "Image File" or "Attachment Page" link for this image in the gallery.'
+		);
+		$target_value = get_post_meta( $post->ID, '_gallery_link_target', true );
+		$form_fields['gallery_link_target'] = array(
+			'label' => __( 'Gallery Link Target' ),
+			'input'	=> 'html',
+			'html'	=> '
+				<select name="attachments['.$post->ID.'][gallery_link_target]" id="attachments['.$post->ID.'][gallery_link_target]">
+					<option value="">Same Window</option>
+					<option value="_blank"'.($target_value == '_blank' ? ' selected="selected"' : '').'>New Window</option>
+				</select>'
 		);
 		return $form_fields;
 	} // End function apply_filter_attachment_fields_to_edit()
@@ -65,6 +75,9 @@ class WPGalleryCustomLinks {
 	public static function apply_filter_attachment_fields_to_save( $post, $attachment ) {
 		if( isset( $attachment['gallery_link_url'] ) ) {
 			update_post_meta( $post['ID'], '_gallery_link_url', $attachment['gallery_link_url'] );
+		}
+		if( isset( $attachment['gallery_link_target'] ) ) {
+			update_post_meta( $post['ID'], '_gallery_link_target', $attachment['gallery_link_target'] );
 		}
 		return $post;
 	} // End function apply_filter_attachment_fields_to_save() 
@@ -116,24 +129,27 @@ class WPGalleryCustomLinks {
 		$attachments = get_children( array( 'post_parent' => $post_id, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image' ) );
 		foreach ( $attachments as $attachment_id => $attachment ) {
 			$link = '';
+			$target = '';
 			
 			// See if we have a custom url for this attachment image
 			$attachment_meta = get_post_meta( $attachment_id, '_gallery_link_url', true );
 			if( $attachment_meta ) {
 				$link = $attachment_meta;
 			}
-
-			if( $link != '' ) {
-				// If we have a non-blank custom url, swap out the href on the image
-				// in the generated gallery code with the custom url
-				
+			// See if we have a target for this attachment image
+			$attachment_meta = get_post_meta( $attachment_id, '_gallery_link_target', true );
+			if( $attachment_meta ) {
+				$target = $attachment_meta;
+			}
+			
+			if( $link != '' || $target != '' ) {
 				// Replace the attachment href
 				$needle = get_attachment_link( $attachment_id );
-				$output = self::replace_link( $needle, $link, $output );
-				
+				$output = self::replace_link( $needle, $link, $target, $output );
+
 				// Replace the file href
 				list( $needle ) = wp_get_attachment_image_src( $attachment_id, '' );
-				$output = self::replace_link( $needle, $link, $output );
+				$output = self::replace_link( $needle, $link, $target, $output );
 
 				// Replace all possible file sizes - some themes etc.
 				// may use sizes other than the full version
@@ -143,11 +159,12 @@ class WPGalleryCustomLinks {
 					if( is_array( $attachment_sizes ) && count( $attachment_sizes ) > 0 ) {
 						foreach( $attachment_sizes as $attachment_size => $attachment_info ) {
 							list( $needle ) = wp_get_attachment_image_src( $attachment_id, $attachment_size );
-							$output = self::replace_link( $needle, $link, $output );
+							$output = self::replace_link( $needle, $link, $target, $output );
 						} // End of foreach attachment size
 					} // End if we have attachment sizes
 				} // End if we have attachment metadata (specifically sizes)
-			} // End if we have a custom url to swap in
+			} // End if we have a link to swap in or a target to add
+			
 		} // End foreach post attachment
 		
 		// Javascript to override lightboxes
@@ -159,8 +176,18 @@ class WPGalleryCustomLinks {
 			$output .= "jQuery(document).ready(function () {\n";
 			$output .= "	jQuery('a.no-lightbox').unbind();\n";
 			$output .= "	jQuery('a.no-lightbox').off();\n";
-			$output .= "	jQuery('a.no-lightbox').click(function(){window.location=this.href; return false;});\n";
-			$output .= "});";
+			$output .= "	jQuery('a.no-lightbox').click(wp_gallery_custom_links_click);\n";
+			$output .= "	jQuery('a.set-target').unbind();\n";
+			$output .= "	jQuery('a.set-target').off();\n";
+			$output .= "	jQuery('a.set-target').click(wp_gallery_custom_links_click);\n";
+			$output .= "});\n";
+			$output .= "function wp_gallery_custom_links_click() {\n";
+			$output .= "	if(!this.target || this.target == '')\n";
+			$output .= "		window.location = this.href;\n";
+			$output .= "	else\n";
+			$output .= "		window.open(this.href,this.target);\n";
+			$output .= "	return false;\n";
+			$output .= "}\n";
 			$output .= "/* ]]> */\n";
 			$output .= "</script>";
 		} // End if it's not a feed
@@ -168,35 +195,76 @@ class WPGalleryCustomLinks {
 		return $output;
 	} // End function apply_filter_post_gallery()
 	
-	private static function replace_link( $default_link, $custom_link, $output ) {
+	private static function replace_link( $default_link, $custom_link, $target, $output ) {
 		// Build the regex for matching/replacing
 		$needle = preg_quote( $default_link );
 		$needle = str_replace( '/', '\/', $needle );
 		$needle = '/href\s*=\s*["\']' . $needle . '["\']/';
-		if( preg_match( $needle, $output ) > 0 ) {
-			// If we found the href to swap out, perform the href replacement,
-			// and add some javascript to prevent lightboxes from kicking in
-			$output = preg_replace( $needle, 'href="' . $custom_link . '"', $output );
+		if( preg_match( $needle, $output ) > 0 ) {			
+			// Custom Target
+			if( $target != '' ) {
+				// Replace the link target
+				$output = self::add_target( $default_link, $target, $output );
+				
+				// Add a class to the link so we can manipulate it with
+				// javascript later
+				$output = self::add_class( $default_link, 'set-target', $output );
+			}
 			
-			// Clean up the new href for regex-ing
-			$custom_link = preg_quote( $custom_link );
-			$custom_link = str_replace( '/', '\/', $custom_link );
-			
-			// Add a class to the link so we can manipulate it with
-			// javascript later
-			if( preg_match( '/<a[^>]*href="' . $custom_link . '"[^>]*class\s*=\s*["\'][^"\']*["\'][^>]*>/', $output ) > 0 ) {
-				// href comes before class
-				$output = preg_replace( '/(<a[^>]*href="' . $custom_link . '"[^>]*class\s*=\s*["\'][^"\']*)(["\'][^>]*>)/', '$1no-lightbox$2', $output );
-			} elseif( preg_match( '/<a[^>]*class\s*=\s*["\'][^"\']*["\'][^>]*href="' . $custom_link . '"[^>]*>/', $output ) > 0 ) {
-				// href comes after class
-				$output = preg_replace( '/(<a[^>]*class\s*=\s*["\'][^"\']*)(["\'][^>]*href="' . $custom_link . '"[^>]*>)/', '$1no-lightbox$2', $output );
-			} else {
-				// No previous class
-				$output = preg_replace( '/(<a[^>]*href="' . $custom_link . '"[^>]*)(>)/', '$1 class="no-lightbox"$2', $output );
-			} // End if we have a class on the a tag or not
+			// Custom Link
+			if( $custom_link != '' ) {
+				// If we found the href to swap out, perform the href replacement,
+				// and add some javascript to prevent lightboxes from kicking in
+				$output = preg_replace( $needle, 'href="' . $custom_link . '"', $output );
+				
+				// Add a class to the link so we can manipulate it with
+				// javascript later
+				$output = self::add_class( $custom_link, 'no-lightbox', $output );
+			} // End if we have a custom link to swap in
 		} // End if we found the attachment to replace in the output
 		
 		return $output;
 	} // End function replace_link()
+	
+	private static function add_class( $needle, $class, $output ) {
+		// Clean up our needle for regexing
+		$needle = preg_quote( $needle );
+		$needle = str_replace( '/', '\/', $needle );
+		
+		// Add a class to the link so we can manipulate it with
+		// javascript later
+		if( preg_match( '/<a[^>]*href\s*=\s*["\']' . $needle . '["\'][^>]*class\s*=\s*["\'][^"\']*["\'][^>]*>/', $output ) > 0 ) {
+			// href comes before class
+			$output = preg_replace( '/(<a[^>]*href\s*=\s*["\']' . $needle . '["\'][^>]*class\s*=\s*["\'][^"\']*)(["\'][^>]*>)/', '$1 '.$class.'$2', $output );
+		} elseif( preg_match( '/<a[^>]*class\s*=\s*["\'][^"\']*["\'][^>]*href\s*=\s*["\']' . $needle . '["\'][^>]*>/', $output ) > 0 ) {
+			// href comes after class
+			$output = preg_replace( '/(<a[^>]*class\s*=\s*["\'][^"\']*)(["\'][^>]*href\s*=\s*["\']' . $needle . '["\'][^>]*>)/', '$1 '.$class.'$2', $output );
+		} else {
+			// No previous class
+			$output = preg_replace( '/(<a[^>]*href\s*=\s*["\']' . $needle . '["\'][^>]*)(>)/', '$1 class="'.$class.'"$2', $output );
+		} // End if we have a class on the a tag or not
+		
+		return $output;
+	} // End function add_class()
+	
+	private static function add_target( $needle, $target, $output ) {
+		// Clean up our needle for regexing
+		$needle = preg_quote( $needle );
+		$needle = str_replace( '/', '\/', $needle );
+		
+		// Add a target to the link (or overwrite what's there)
+		if( preg_match( '/<a[^>]*href\s*=\s*["\']' . $needle . '["\'][^>]*target\s*=\s*["\'][^"\']*["\'][^>]*>/', $output ) > 0 ) {
+			// href comes before target
+			$output = preg_replace( '/(<a[^>]*href\s*=\s*["\']' . $needle . '["\'][^>]*target\s*=\s*["\'])[^"\']*(["\'][^>]*>)/', '$1'.$target.'$2', $output );
+		} elseif( preg_match( '/<a[^>]*target\s*=\s*["\'][^"\']*["\'][^>]*href\s*=\s*["\']' . $needle . '["\'][^>]*>/', $output ) > 0 ) {
+			// href comes after target
+			$output = preg_replace( '/(<a[^>]*target\s*=\s*["\'])[^"\']*(["\'][^>]*href\s*=\s*["\']' . $needle . '["\'][^>]*>)/', '$1'.$target.'$2', $output );
+		} else {
+			// No previous target
+			$output = preg_replace( '/(<a[^>]*href\s*=\s*["\']' . $needle . '["\'][^>]*)(>)/', '$1 target="'.$target.'"$2', $output );
+		} // End if we have a class on the a tag or not
+		
+		return $output;
+	} // End function add_target()
 	
 } // End class WPGalleryCustomLinks

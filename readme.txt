@@ -4,7 +4,7 @@ Donate link: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-li
 Tags: gallery links, gallery link, gallery
 Requires at least: 3.3.2
 Tested up to: 3.4.1
-Stable tag: 1.1.2
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,14 +12,20 @@ Specifiy custom links for WordPress gallery images (instead of attachment or fil
 
 == Description ==
 
+If you've ever had a WordPress gallery of staff, product, or other images and needed
+to link them to other pages but couldn't, this plugin is for you!
+ 
 This plugin adds a "Gallery Link URL" field when editing post images. If the image
 is included in a gallery, the "Gallery Link URL" value will be used as the link on
-the image instead of the raw file or the attachment post. It's designed to work
-even if customizations have been made via the post_gallery filter; instead of
-replacing the entire post_gallery function, it calls the normal function
-and simply replaces the link hrefs in the generated output.  Javascript is 
-also in place to attempt to remove any lightbox functionality on the custom link
-and allow it to function as a regular link.
+the image instead of the raw file or the attachment post.  There is also an option
+to open gallery images in a new window.
+
+It's designed to work even if customizations have been made via the
+post_gallery filter; instead of replacing the entire post_gallery function, it
+calls the normal function and simply replaces the link hrefs in the generated
+output.  Javascript is also in place to attempt to remove any lightbox
+functionality on the custom link and allow it to function as a regular link.
+
 
 == Installation ==
 
@@ -48,6 +54,9 @@ that function outside of the WordPress [gallery] shortcode.
 1. The added "Gallery Link URL" field.
 
 == Changelog ==
+
+= 1.2.0 =
+* By popular demand, added an option to open gallery image links in a new window.
 
 = 1.1.2 =
 * Added a check to prevent javascript from showing up in feeds.
@@ -79,6 +88,9 @@ that function outside of the WordPress [gallery] shortcode.
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.2.0 =
+* By popular demand, added an option to open gallery image links in a new window.
 
 = 1.1.2 =
 * Added a check to prevent javascript from showing up in feeds.
