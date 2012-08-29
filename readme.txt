@@ -4,7 +4,7 @@ Donate link: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-li
 Tags: gallery links, gallery link, gallery
 Requires at least: 3.3.2
 Tested up to: 3.4.1
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -55,6 +55,9 @@ that function outside of the WordPress [gallery] shortcode.
 
 == Changelog ==
 
+= 1.2.2 =
+* Moved javascript to a separate file so jquery could be required as a dependency.
+
 = 1.2.1 =
 * Fixed a bug where javascript hover effects were not working properly on images.
 
@@ -91,6 +94,9 @@ that function outside of the WordPress [gallery] shortcode.
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.2.2 =
+* Moved javascript to a separate file so jquery could be required as a dependency.
 
 = 1.2.1 =
 * Fixed a bug where javascript hover effects were not working properly on images.

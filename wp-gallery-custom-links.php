@@ -3,7 +3,7 @@
 Plugin Name: WP Gallery Custom Links
 Plugin URI: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-links/
 Description: Specifiy custom links for WordPress gallery images (instead of attachment or file only).
-Version: 1.2.1
+Version: 1.2.2
 Author: Four Lights Web Development
 Author URI: http://www.fourlightsweb.com
 License: GPL2
@@ -41,7 +41,7 @@ class WPGalleryCustomLinks {
 	//			return "filter" $output to original $GLOBALS['shortcode_tags']['gallery'] call
 	private static $first_call = true;
 	
-	public static function init() {
+	public static function init() {	
 		// Add the filter for editing the custom url field
 		add_filter( 'attachment_fields_to_edit', array( 'WPGalleryCustomLinks', 'apply_filter_attachment_fields_to_edit' ), null, 2);
 		
@@ -50,6 +50,15 @@ class WPGalleryCustomLinks {
 		
 		// Add the filter for when the post_gallery is written out
 		add_filter( 'post_gallery', array( 'WPGalleryCustomLinks', 'apply_filter_post_gallery' ), 999, 2 );
+		
+		// Require the javascript to disable lightbox
+		wp_enqueue_script(
+			'wp-gallery-custom-links-js',
+			plugins_url( '/wp-gallery-custom-links.js', __FILE__ ),
+			array( 'jquery' ),
+			'1.0',
+			true
+		);
 	} // End function init()
 	
 	public static function apply_filter_attachment_fields_to_edit( $form_fields, $post ) {
@@ -166,31 +175,6 @@ class WPGalleryCustomLinks {
 			} // End if we have a link to swap in or a target to add
 			
 		} // End foreach post attachment
-		
-		// Javascript to override lightboxes
-		// Note: Make sure this don't go into feeds, since it could
-		// cause Mailchimp etc. to not work properly.
-		if( ! is_feed() ) {
-			$output .= "<script type=\"text/javascript\">\n";
-			$output .= "/* <![CDATA[ */\n";
-			$output .= "jQuery(document).ready(function () {\n";
-			$output .= "	jQuery('a.no-lightbox').unbind('click');\n";
-			$output .= "	jQuery('a.no-lightbox').off('click');\n";
-			$output .= "	jQuery('a.no-lightbox').click(wp_gallery_custom_links_click);\n";
-			$output .= "	jQuery('a.set-target').unbind('click');\n";
-			$output .= "	jQuery('a.set-target').off('click');\n";
-			$output .= "	jQuery('a.set-target').click(wp_gallery_custom_links_click);\n";
-			$output .= "});\n";
-			$output .= "function wp_gallery_custom_links_click() {\n";
-			$output .= "	if(!this.target || this.target == '')\n";
-			$output .= "		window.location = this.href;\n";
-			$output .= "	else\n";
-			$output .= "		window.open(this.href,this.target);\n";
-			$output .= "	return false;\n";
-			$output .= "}\n";
-			$output .= "/* ]]> */\n";
-			$output .= "</script>";
-		} // End if it's not a feed
 
 		return $output;
 	} // End function apply_filter_post_gallery()
