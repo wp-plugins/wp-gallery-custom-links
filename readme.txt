@@ -3,8 +3,8 @@ Contributors: fourlightsweb
 Donate link: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-links/#donate
 Tags: gallery links, gallery link, gallery
 Requires at least: 3.3.2
-Tested up to: 3.4.1
-Stable tag: 1.2.2
+Tested up to: 3.4.2
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -18,7 +18,11 @@ to link them to other pages but couldn't, this plugin is for you!
 This plugin adds a "Gallery Link URL" field when editing post images. If the image
 is included in a gallery, the "Gallery Link URL" value will be used as the link on
 the image instead of the raw file or the attachment post.  There is also an option
-to open gallery images in a new window.
+to open gallery images in a new window.  If you want to use the same images in a
+different gallery but not use the custom links, you can add
+'ignore_gallery_link_urls="true"' to the [gallery] shortcode:
+
+[gallery ignore_gallery_link_urls="true"]
 
 It's designed to work even if customizations have been made via the
 post_gallery filter; instead of replacing the entire post_gallery function, it
@@ -54,6 +58,12 @@ that function outside of the WordPress [gallery] shortcode.
 1. The added "Gallery Link URL" field.
 
 == Changelog ==
+
+= 1.3.0 =
+* Added support for the "ignore_gallery_link_urls" gallery shortcode attribute to 
+ignore custom links on a gallery and use the normal file/attachment setting.
+* Added support for IDs in the "include" gallery shortcode attribute that aren't 
+directly attached to the post.
 
 = 1.2.2 =
 * Moved javascript to a separate file so jquery could be required as a dependency.
@@ -94,6 +104,12 @@ that function outside of the WordPress [gallery] shortcode.
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.3.0 =
+* Added support for the "ignore_gallery_link_urls" gallery shortcode attribute to 
+ignore custom links on a gallery and use the normal file/attachment setting.
+* Added support for IDs in the "include" gallery shortcode attribute that aren't 
+directly attached to the post.
 
 = 1.2.2 =
 * Moved javascript to a separate file so jquery could be required as a dependency.

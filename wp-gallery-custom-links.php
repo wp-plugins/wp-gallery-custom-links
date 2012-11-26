@@ -3,7 +3,7 @@
 Plugin Name: WP Gallery Custom Links
 Plugin URI: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-links/
 Description: Specifiy custom links for WordPress gallery images (instead of attachment or file only).
-Version: 1.2.2
+Version: 1.3.0
 Author: Four Lights Web Development
 Author URI: http://www.fourlightsweb.com
 License: GPL2
@@ -94,9 +94,6 @@ class WPGalleryCustomLinks {
 	public static function apply_filter_post_gallery( $output, $attr ) {
 		global $post;
 		
-		// Get the shortcode attributes
-		extract( shortcode_atts( array(), $attr ) );
-		
 		// Determine what our postID for attachments is - either
 		// from our shortcode attr or from $post->ID. If we don't
 		// have one from either of those places...something weird
@@ -109,7 +106,12 @@ class WPGalleryCustomLinks {
 			return ' ';
 		}
 		
-		if( self::$first_call ) {
+		if( isset( $attr['ignore_gallery_link_urls'] ) && trim( $attr['ignore_gallery_link_urls'] ) === 'true' ) {
+			// If the user has passed in a parameter to ignore the custom link
+			// URLs for this gallery, just skip over this whole plugin and
+			// return what was passed in
+			return $output;
+		} else if( self::$first_call ) {
 			// Our first run, so the gallery function thinks it's being
 			// overwritten. Set the variable to prevent actual endless
 			// overwriting later.
@@ -134,11 +136,19 @@ class WPGalleryCustomLinks {
 		// default, theme-specified or whatever
 		$output = call_user_func( $gallery_shortcode_function, $attr );		
 		
-		// Get the attachments for this post
+		// Get the attachment ids for this post, as well as any "include"d attachments
 		$attachments = get_children( array( 'post_parent' => $post_id, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image' ) );
-		foreach ( $attachments as $attachment_id => $attachment ) {
+		$attachment_ids = array();
+		if( count( $attachments ) > 0 ) {
+			$attachment_ids = array_merge( $attachment_ids, array_keys( $attachments ) );
+		}
+		if( isset( $attr['include'] ) ) {
+			$attachment_ids = array_merge( $attachment_ids, explode( ',', $attr['include'] ) );
+		}
+		foreach ( $attachment_ids as $attachment_id ) {
 			$link = '';
 			$target = '';
+			$attachment_id = intval( $attachment_id ); 
 			
 			// See if we have a custom url for this attachment image
 			$attachment_meta = get_post_meta( $attachment_id, '_gallery_link_url', true );
