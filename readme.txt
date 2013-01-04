@@ -4,7 +4,7 @@ Donate link: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-li
 Tags: gallery links, gallery link, gallery
 Requires at least: 3.3.2
 Tested up to: 3.5
-Stable tag: 1.3.0
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,6 +23,12 @@ different gallery but not use the custom links, you can add
 'ignore_gallery_link_urls="true"' to the [gallery] shortcode:
 
 [gallery ignore_gallery_link_urls="true"]
+
+If you want all the custom-linked images in a gallery to keep their Lightbox or
+other OnClick events, you can add 'preserve_click_events="true"' to the [gallery]
+shortcode:
+
+[gallery preserve_click_events="true"]
 
 It's designed to work even if customizations have been made via the
 post_gallery filter; instead of replacing the entire post_gallery function, it
@@ -55,9 +61,15 @@ that function outside of the WordPress [gallery] shortcode.
 
 == Screenshots ==
 
-1. The added "Gallery Link URL" field.
+1. The additional WP Gallery Custom Link fields.
 
 == Changelog ==
+
+= 1.4.0 =
+* By popular demand, added an option to remove or keep Lightbox and other OnClick
+events ("remove" by default).
+* Added support for the "preserve_click_events" gallery shortcode attribute to
+set all custom-linked images in a gallery to "preserve" its OnClick events.
 
 = 1.3.0 =
 * Added support for the "ignore_gallery_link_urls" gallery shortcode attribute to 
@@ -104,6 +116,12 @@ directly attached to the post.
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.4.0 =
+* By popular demand, added an option to remove or keep Lightbox and other OnClick
+events ("remove" by default).
+* Added support for the "preserve_click_events" gallery shortcode attribute to
+set all custom-linked images in a gallery to "preserve" its OnClick events.
 
 = 1.3.0 =
 * Added support for the "ignore_gallery_link_urls" gallery shortcode attribute to 

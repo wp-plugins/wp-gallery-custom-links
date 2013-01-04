@@ -3,7 +3,7 @@
 Plugin Name: WP Gallery Custom Links
 Plugin URI: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-links/
 Description: Specifiy custom links for WordPress gallery images (instead of attachment or file only).
-Version: 1.3.0
+Version: 1.4.0
 Author: Four Lights Web Development
 Author URI: http://www.fourlightsweb.com
 License: GPL2
@@ -78,6 +78,17 @@ class WPGalleryCustomLinks {
 					<option value="_blank"'.($target_value == '_blank' ? ' selected="selected"' : '').'>New Window</option>
 				</select>'
 		);
+		$preserve_click_value = get_post_meta( $post->ID, '_gallery_link_preserve_click', true );
+		$form_fields['gallery_link_preserve_click'] = array(
+			'label' => __( 'Gallery Link OnClick Effect' ),
+			'input'	=> 'html',
+			'html'	=> '
+				<select name="attachments['.$post->ID.'][gallery_link_preserve_click]" id="attachments['.$post->ID.'][gallery_link_preserve_click]">
+					<option value="remove">Remove</option>
+					<option value="preserve"'.($preserve_click_value == 'preserve' ? ' selected="selected"' : '').'>Keep</option>
+				</select>',
+			'helps' => 'Lightbox and other OnClick events are removed by default.'
+		);
 		return $form_fields;
 	} // End function apply_filter_attachment_fields_to_edit()
 	
@@ -87,6 +98,9 @@ class WPGalleryCustomLinks {
 		}
 		if( isset( $attachment['gallery_link_target'] ) ) {
 			update_post_meta( $post['ID'], '_gallery_link_target', $attachment['gallery_link_target'] );
+		}
+		if( isset( $attachment['gallery_link_preserve_click'] ) ) {
+			update_post_meta( $post['ID'], '_gallery_link_preserve_click', $attachment['gallery_link_preserve_click'] );
 		}
 		return $post;
 	} // End function apply_filter_attachment_fields_to_save() 
@@ -160,15 +174,25 @@ class WPGalleryCustomLinks {
 			if( $attachment_meta ) {
 				$target = $attachment_meta;
 			}
+
+			// See how to handle click events for this attachment image
+			$attachment_meta = get_post_meta( $attachment_id, '_gallery_link_preserve_click', true );
+			if( $attachment_meta ) {
+				$preserve_click = $attachment_meta;
+			}
+			if( isset( $attr['preserve_click_events'] ) && trim( $attr['preserve_click_events'] ) === 'true' ) {
+				// Override the individual setting if the gallery shortcode says to preserve on all
+				$preserve_click = 'preserve';
+			}
 			
 			if( $link != '' || $target != '' ) {
 				// Replace the attachment href
 				$needle = get_attachment_link( $attachment_id );
-				$output = self::replace_link( $needle, $link, $target, $output );
+				$output = self::replace_link( $needle, $link, $target, $preserve_click, $output );
 
 				// Replace the file href
 				list( $needle ) = wp_get_attachment_image_src( $attachment_id, '' );
-				$output = self::replace_link( $needle, $link, $target, $output );
+				$output = self::replace_link( $needle, $link, $target, $preserve_click, $output );
 
 				// Replace all possible file sizes - some themes etc.
 				// may use sizes other than the full version
@@ -178,7 +202,7 @@ class WPGalleryCustomLinks {
 					if( is_array( $attachment_sizes ) && count( $attachment_sizes ) > 0 ) {
 						foreach( $attachment_sizes as $attachment_size => $attachment_info ) {
 							list( $needle ) = wp_get_attachment_image_src( $attachment_id, $attachment_size );
-							$output = self::replace_link( $needle, $link, $target, $output );
+							$output = self::replace_link( $needle, $link, $target, $preserve_click, $output );
 						} // End of foreach attachment size
 					} // End if we have attachment sizes
 				} // End if we have attachment metadata (specifically sizes)
@@ -189,7 +213,7 @@ class WPGalleryCustomLinks {
 		return $output;
 	} // End function apply_filter_post_gallery()
 	
-	private static function replace_link( $default_link, $custom_link, $target, $output ) {
+	private static function replace_link( $default_link, $custom_link, $target, $preserve_click, $output ) {
 		// Build the regex for matching/replacing
 		$needle = preg_quote( $default_link );
 		$needle = str_replace( '/', '\/', $needle );
@@ -213,7 +237,9 @@ class WPGalleryCustomLinks {
 				
 				// Add a class to the link so we can manipulate it with
 				// javascript later
-				$output = self::add_class( $custom_link, 'no-lightbox', $output );
+				if( $preserve_click != 'preserve' ) {
+					$output = self::add_class( $custom_link, 'no-lightbox', $output );
+				}
 			} // End if we have a custom link to swap in
 		} // End if we found the attachment to replace in the output
 		
