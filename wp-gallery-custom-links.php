@@ -193,6 +193,25 @@ class WPGalleryCustomLinks {
 				// Replace the file href
 				list( $needle ) = wp_get_attachment_image_src( $attachment_id, '' );
 				$output = self::replace_link( $needle, $link, $target, $preserve_click, $output );
+				// Also, in case of jetpack photon with tiled galleries...
+				if( function_exists( 'jetpack_photon_url' ) ) {
+					// The CDN url currently is generated with "$subdomain = rand( 0, 2 );",
+					// and then "$photon_url  = "http://i{$subdomain}.wp.com/$image_host_path";".
+					// So just to cover our bases, loop over a slightly larger range of numbers
+					// to make sure we include all possibilities for what the photon url
+					// could be.  The max $j value may need to be increased someday if they
+					// get a lot busier. Also the URL could change. I guess I'll cross
+					// those bridges when we come to them. Blah.
+					for( $j = 0; $j < 10; $j++ ) {
+						$needle_parts = explode( '.wp.com', jetpack_photon_url( $needle ) );
+						if( count( $needle_parts ) == 2 ) {
+							$needle_part_1 = preg_replace( '/\d+$/', '', $needle_parts[0] );
+							$needle_part_2 = '.wp.com' . $needle_parts[1];
+							$needle_reassembled = $needle_part_1 . $j . $needle_part_2;
+							$output = self::replace_link( $needle_reassembled, $link, $target, $preserve_click, $output );
+						}
+					}
+				}
 
 				// Replace all possible file sizes - some themes etc.
 				// may use sizes other than the full version
