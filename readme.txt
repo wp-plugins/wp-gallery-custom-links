@@ -4,7 +4,7 @@ Donate link: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-li
 Tags: gallery links, gallery link, gallery
 Requires at least: 3.3.2
 Tested up to: 3.5
-Stable tag: 1.4.0
+Stable tag: 1.5.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,6 +65,10 @@ that function outside of the WordPress [gallery] shortcode.
 
 == Changelog ==
 
+= 1.5.0 =
+* By popular demand, added support for Jetpack tiled galleries (and its use
+of the Photon CDN for URLs).
+
 = 1.4.0 =
 * By popular demand, added an option to remove or keep Lightbox and other OnClick
 events ("remove" by default).
@@ -116,6 +120,10 @@ directly attached to the post.
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.5.0 =
+* By popular demand, added support for Jetpack tiled galleries (and its use
+of the Photon CDN for URLs).
 
 = 1.4.0 =
 * By popular demand, added an option to remove or keep Lightbox and other OnClick
