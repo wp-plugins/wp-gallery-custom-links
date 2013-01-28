@@ -61,6 +61,21 @@ designed for use with 1) WordPress's [gallery] shortcode and 2) images
 attached to the post/page.  NextGen galleries uses its own [nggallery] etc. shortcodes
 that function outside of the WordPress [gallery] shortcode.
 
+= I've set my gallery to remove Lightbox effects, but they are still coming up. Why? =
+
+Your Lightbox javascript may be running after the WP Gallery Custom Links javascript.
+This may cause the Lightbox effect to be applied after the WP Gallery Custom Links
+script attempts to remove it. Try moving your Lightbox javascript above the
+WP Gallery Custom Links javascript.  Note that you may need to add your Lightbox
+script as a dependency for WP Gallery Custom Links to make sure WP Gallery Custom Links
+runs after it. 
+
+= When I enable the plugin, the styling on my gallery changes. Why? =
+
+The way the plugin works requires the gallery generation code to be run twice.  This
+may result in it being labeled as "#gallery-2" instead of "#gallery-1." 
+Check your HTML and CSS for these changes and adjust accordingly.
+
 == Screenshots ==
 
 1. The additional WP Gallery Custom Link fields.
