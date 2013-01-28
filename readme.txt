@@ -25,8 +25,8 @@ additional options (see "Usage" below).
 It's designed to work even if customizations have been made via the
 post_gallery filter; instead of replacing the entire post_gallery function, it
 calls the normal function and simply replaces the link hrefs in the generated
-functionality on the custom link and allow it to function as a regular link (by default).
-output.  Javascript is also in place to attempt to remove any lightbox
+output. By default, any Lightbox or other onClick events on custom links
+will be removed to allow them to function as regular links.
 
 = Usage =
 
