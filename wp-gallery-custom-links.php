@@ -3,7 +3,7 @@
 Plugin Name: WP Gallery Custom Links
 Plugin URI: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-links/
 Description: Specifiy custom links for WordPress gallery images (instead of attachment or file only).
-Version: 1.5.1
+Version: 1.6.0
 Author: Four Lights Web Development
 Author URI: http://www.fourlightsweb.com
 License: GPL2
@@ -120,7 +120,7 @@ class WPGalleryCustomLinks {
 			return ' ';
 		}
 		
-		if( isset( $attr['ignore_gallery_link_urls'] ) && trim( $attr['ignore_gallery_link_urls'] ) === 'true' ) {
+		if( isset( $attr['ignore_gallery_link_urls'] ) && strtolower( trim( $attr['ignore_gallery_link_urls'] ) ) === 'true' ) {
 			// If the user has passed in a parameter to ignore the custom link
 			// URLs for this gallery, just skip over this whole plugin and
 			// return what was passed in
@@ -163,6 +163,7 @@ class WPGalleryCustomLinks {
 			$link = '';
 			$target = '';
 			$preserve_click = '';
+			$remove_link = false;
 			$attachment_id = intval( $attachment_id ); 
 			
 			// See if we have a custom url for this attachment image
@@ -181,19 +182,24 @@ class WPGalleryCustomLinks {
 			if( $attachment_meta ) {
 				$preserve_click = $attachment_meta;
 			}
-			if( isset( $attr['preserve_click_events'] ) && trim( $attr['preserve_click_events'] ) === 'true' ) {
+			if( isset( $attr['preserve_click_events'] ) && strtolower( trim( $attr['preserve_click_events'] ) ) === 'true' ) {
 				// Override the individual setting if the gallery shortcode says to preserve on all
 				$preserve_click = 'preserve';
 			}
 			
-			if( $link != '' || $target != '' ) {
+			// See if we need to remove the link for this image or not
+			if( strtolower( trim( $link ) ) === '[none]' || ( isset( $attr['remove_links'] ) && strtolower( trim( $attr['remove_links'] ) ) === 'true' ) ) {
+				$remove_link = true;
+			}
+			
+			if( $link != '' || $target != '' || $remove_link ) {
 				// Replace the attachment href
 				$needle = get_attachment_link( $attachment_id );
-				$output = self::replace_link( $needle, $link, $target, $preserve_click, $output );
+				$output = self::replace_link( $needle, $link, $target, $preserve_click, $remove_link, $output );
 
 				// Replace the file href
 				list( $needle ) = wp_get_attachment_image_src( $attachment_id, '' );
-				$output = self::replace_link( $needle, $link, $target, $preserve_click, $output );
+				$output = self::replace_link( $needle, $link, $target, $preserve_click, $remove_link, $output );
 				// Also, in case of jetpack photon with tiled galleries...
 				if( function_exists( 'jetpack_photon_url' ) ) {
 					// The CDN url currently is generated with "$subdomain = rand( 0, 2 );",
@@ -209,7 +215,7 @@ class WPGalleryCustomLinks {
 							$needle_part_1 = preg_replace( '/\d+$/', '', $needle_parts[0] );
 							$needle_part_2 = '.wp.com' . $needle_parts[1];
 							$needle_reassembled = $needle_part_1 . $j . $needle_part_2;
-							$output = self::replace_link( $needle_reassembled, $link, $target, $preserve_click, $output );
+							$output = self::replace_link( $needle_reassembled, $link, $target, $preserve_click, $remove_link, $output );
 						}
 					}
 				}
@@ -222,7 +228,7 @@ class WPGalleryCustomLinks {
 					if( is_array( $attachment_sizes ) && count( $attachment_sizes ) > 0 ) {
 						foreach( $attachment_sizes as $attachment_size => $attachment_info ) {
 							list( $needle ) = wp_get_attachment_image_src( $attachment_id, $attachment_size );
-							$output = self::replace_link( $needle, $link, $target, $preserve_click, $output );
+							$output = self::replace_link( $needle, $link, $target, $preserve_click, $remove_link, $output );
 						} // End of foreach attachment size
 					} // End if we have attachment sizes
 				} // End if we have attachment metadata (specifically sizes)
@@ -233,14 +239,44 @@ class WPGalleryCustomLinks {
 		return $output;
 	} // End function apply_filter_post_gallery()
 	
-	private static function replace_link( $default_link, $custom_link, $target, $preserve_click, $output ) {
+	private static function replace_link( $default_link, $custom_link, $target, $preserve_click, $remove_link, $output ) {
 		// Build the regex for matching/replacing
 		$needle = preg_quote( $default_link );
 		$needle = str_replace( '/', '\/', $needle );
 		$needle = '/href\s*=\s*["\']' . $needle . '["\']/';
-		if( preg_match( $needle, $output ) > 0 ) {			
+		if( preg_match( $needle, $output ) > 0 ) {
+			// Remove Link
+			if( $remove_link ) {
+				// Break the output up into two parts: everything before this href
+				// and everything after
+				$output_parts = explode( $default_link, $output );
+				if( count( $output_parts ) == 2 ) {
+					$output_part_1 = $output_parts[0];
+					$output_part_2 = $output_parts[1];
+				
+					// Take out the <a> from the end of part 1
+					$output_part_1 = preg_replace( '/<\s*a\s+.*$/', '', $output_part_1 );
+					
+					// And then take out everything up through the first > that comes after that
+					// (which would be the closing angle bracket of <a>)
+					$pos = strpos( $output_part_2, '>' );
+					if( $pos !== false ) {
+						$output_part_2 = substr( $output_part_2, $pos+1 );
+					}
+					
+					// And then take out the first </a> that comes after that
+					$pos = strpos( $output_part_2, '</a>' );
+					if( $pos !== false ) {
+						$output_part_2 = substr( $output_part_2, 0, $pos ) . substr( $output_part_2, $pos+4 );
+					}
+						
+					// And then stitch them back together again, without the link parts
+					$output = $output_part_1 . $output_part_2;
+				}
+			}
+		
 			// Custom Target
-			if( $target != '' ) {
+			if( $target != '' && ! $remove_link ) {
 				// Replace the link target
 				$output = self::add_target( $default_link, $target, $output );
 				
@@ -250,7 +286,7 @@ class WPGalleryCustomLinks {
 			}
 			
 			// Custom Link
-			if( $custom_link != '' ) {
+			if( $custom_link != '' && ! $remove_link  ) {
 				// If we found the href to swap out, perform the href replacement,
 				// and add some javascript to prevent lightboxes from kicking in
 				$output = preg_replace( $needle, 'href="' . $custom_link . '"', $output );

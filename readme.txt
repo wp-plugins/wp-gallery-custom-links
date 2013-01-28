@@ -3,8 +3,8 @@ Contributors: fourlightsweb
 Donate link: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-links/#donate
 Tags: gallery links, gallery link, gallery
 Requires at least: 3.3.2
-Tested up to: 3.5
-Stable tag: 1.5.1
+Tested up to: 3.5.1
+Stable tag: 1.6.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,30 +12,32 @@ Specifiy custom links for WordPress gallery images (instead of attachment or fil
 
 == Description ==
 
+= Overview =
+
 If you've ever had a WordPress gallery of staff, product, or other images and needed
 to link them to other pages but couldn't, this plugin is for you!
  
 This plugin adds a "Gallery Link URL" field when editing post images. If the image
 is included in a gallery, the "Gallery Link URL" value will be used as the link on
-the image instead of the raw file or the attachment post.  There is also an option
-to open gallery images in a new window.  If you want to use the same images in a
-different gallery but not use the custom links, you can add
-'ignore_gallery_link_urls="true"' to the [gallery] shortcode:
-
-[gallery ignore_gallery_link_urls="true"]
-
-If you want all the custom-linked images in a gallery to keep their Lightbox or
-other OnClick events, you can add 'preserve_click_events="true"' to the [gallery]
-shortcode:
-
-[gallery preserve_click_events="true"]
+the image instead of the raw file or the attachment post.  There are also several
+additional options (see "Usage" below).
 
 It's designed to work even if customizations have been made via the
 post_gallery filter; instead of replacing the entire post_gallery function, it
 calls the normal function and simply replaces the link hrefs in the generated
+functionality on the custom link and allow it to function as a regular link (by default).
 output.  Javascript is also in place to attempt to remove any lightbox
-functionality on the custom link and allow it to function as a regular link.
 
+= Usage =
+
+* See the custom fields added in the screenshots section at http://wordpress.org/extend/plugins/wp-gallery-custom-links/screenshots/.
+* For each gallery image, you can specify a custom Gallery Link URL.
+* Use "[none]" as the Gallery Link URL to remove the link for that gallery image.
+* For each gallery image, you can select a Gallery Link Target ("Same Window" or "New Window").
+* For each gallery image, you can select how to handle Lightbox and other onClick events ("Remove" or "Keep").
+* Use [gallery ignore_gallery_link_urls="true"] to ignore the custom links on an entire gallery.
+* Use [gallery preserve_click_events="true"] to keep Lightbox or other onClick events on all custom-linked images in an entire gallery.
+* Use [gallery remove_links="true"] to remove links on all images in an entire gallery.
 
 == Installation ==
 
@@ -64,6 +66,10 @@ that function outside of the WordPress [gallery] shortcode.
 1. The additional WP Gallery Custom Link fields.
 
 == Changelog ==
+
+= 1.6.0 =
+* By popular demand, added the ability to remove links from individual images
+or an entire gallery.
 
 = 1.5.1 =
 * Fixed a possible error with an undefined "preserve_click" variable.
