@@ -25,8 +25,8 @@ additional options (see "Usage" below).
 It's designed to work even if customizations have been made via the
 post_gallery filter; instead of replacing the entire post_gallery function, it
 calls the normal function and simply replaces the link hrefs in the generated
-functionality on the custom link and allow it to function as a regular link (by default).
-output.  Javascript is also in place to attempt to remove any lightbox
+output. By default, any Lightbox or other onClick events on custom links
+will be removed to allow them to function as regular links.
 
 = Usage =
 
@@ -60,6 +60,21 @@ No, this plugin is *not* compatible with NextGen galleries.  WP Gallery Custom L
 designed for use with 1) WordPress's [gallery] shortcode and 2) images
 attached to the post/page.  NextGen galleries uses its own [nggallery] etc. shortcodes
 that function outside of the WordPress [gallery] shortcode.
+
+= I've set my gallery to remove Lightbox effects, but they are still coming up. Why? =
+
+Your Lightbox javascript may be running after the WP Gallery Custom Links javascript.
+This may cause the Lightbox effect to be applied after the WP Gallery Custom Links
+script attempts to remove it. Try moving your Lightbox javascript above the
+WP Gallery Custom Links javascript.  Note that you may need to add your Lightbox
+script as a dependency for WP Gallery Custom Links to make sure WP Gallery Custom Links
+runs after it. 
+
+= When I enable the plugin, the styling on my gallery changes. Why? =
+
+The way the plugin works requires the gallery generation code to be run twice.  This
+may result in it being labeled as "#gallery-2" instead of "#gallery-1." 
+Check your HTML and CSS for these changes and adjust accordingly.
 
 == Screenshots ==
 
