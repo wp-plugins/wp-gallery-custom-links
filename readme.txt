@@ -82,6 +82,12 @@ Check your HTML and CSS for these changes and adjust accordingly.
 
 == Changelog ==
 
+= 1.6.1 =
+* Fixed an issue where items with the same custom link were not having lightbox
+removed properly
+* Added support for the "ids" attribute added in WP 3.5
+* Updated help text for the Gallery Link URL field 
+
 = 1.6.0 =
 * By popular demand, added the ability to remove links from individual images
 or an entire gallery.
@@ -144,6 +150,16 @@ directly attached to the post.
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.6.1 =
+* Fixed an issue where multiple items with the same custom links were not having lightbox
+removed properly
+* Added support for the "ids" attribute added in WP 3.5
+* Updated help text for the Gallery Link URL field 
+
+= 1.6.0 =
+* By popular demand, added the ability to remove links from individual images
+or an entire gallery. 
 
 = 1.5.1 =
 * Fixed a possible error with an undefined "preserve_click" variable.

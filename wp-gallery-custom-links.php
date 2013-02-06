@@ -3,7 +3,7 @@
 Plugin Name: WP Gallery Custom Links
 Plugin URI: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-links/
 Description: Specifiy custom links for WordPress gallery images (instead of attachment or file only).
-Version: 1.6.0
+Version: 1.6.1
 Author: Four Lights Web Development
 Author URI: http://www.fourlightsweb.com
 License: GPL2
@@ -66,7 +66,7 @@ class WPGalleryCustomLinks {
 			'label' => __( 'Gallery Link URL' ),
 			'input' => 'text',
 			'value' => get_post_meta( $post->ID, '_gallery_link_url', true ),
-			'helps' => 'Will replace "Image File" or "Attachment Page" link for this image in the gallery.'
+			'helps' => 'Will replace "Image File" or "Attachment Page" link for this image in the gallery. Use [none] to remove the link from this image.'
 		);
 		$target_value = get_post_meta( $post->ID, '_gallery_link_target', true );
 		$form_fields['gallery_link_target'] = array(
@@ -158,6 +158,9 @@ class WPGalleryCustomLinks {
 		}
 		if( isset( $attr['include'] ) ) {
 			$attachment_ids = array_merge( $attachment_ids, explode( ',', $attr['include'] ) );
+		}
+		if( isset( $attr['ids'] ) ) { // Added in WP 3.5
+			$attachment_ids = array_merge( $attachment_ids, explode( ',', $attr['ids'] ) );
 		}
 		foreach ( $attachment_ids as $attachment_id ) {
 			$link = '';
@@ -287,15 +290,18 @@ class WPGalleryCustomLinks {
 			
 			// Custom Link
 			if( $custom_link != '' && ! $remove_link  ) {
+				// Add a class to the link so we can manipulate it with
+				// javascript later.
+				// Doing this first in case we have the same custom link
+				// on multiple items, in which case that class would be added
+				// to the first item/all items multiple times.
+				if( $preserve_click != 'preserve' ) {
+					$output = self::add_class( $default_link, 'no-lightbox', $output );
+				}
+			
 				// If we found the href to swap out, perform the href replacement,
 				// and add some javascript to prevent lightboxes from kicking in
 				$output = preg_replace( $needle, 'href="' . $custom_link . '"', $output );
-				
-				// Add a class to the link so we can manipulate it with
-				// javascript later
-				if( $preserve_click != 'preserve' ) {
-					$output = self::add_class( $custom_link, 'no-lightbox', $output );
-				}
 			} // End if we have a custom link to swap in
 		} // End if we found the attachment to replace in the output
 		
