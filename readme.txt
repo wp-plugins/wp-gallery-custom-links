@@ -4,7 +4,7 @@ Donate link: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-li
 Tags: gallery links, gallery link, gallery
 Requires at least: 3.3.2
 Tested up to: 3.5.1
-Stable tag: 1.6.1
+Stable tag: 1.7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,7 @@ will be removed to allow them to function as regular links.
 * For each gallery image, you can select a Gallery Link Target ("Same Window" or "New Window").
 * For each gallery image, you can select how to handle Lightbox and other onClick events ("Remove" or "Keep").
 * Use [gallery ignore_gallery_link_urls="true"] to ignore the custom links on an entire gallery.
+* Use [gallery open_all_in_new_window="true"] and [gallery open_all_in_same_window="true"] to open all images in an entire gallery in a new window/the same window, respectively.
 * Use [gallery preserve_click_events="true"] to keep Lightbox or other onClick events on all custom-linked images in an entire gallery.
 * Use [gallery remove_links="true"] to remove links on all images in an entire gallery.
 
@@ -81,6 +82,12 @@ Check your HTML and CSS for these changes and adjust accordingly.
 1. The additional WP Gallery Custom Link fields.
 
 == Changelog ==
+
+= 1.7.0 =
+* By popular demand, added support for the "open_all_in_new_window" and "open_all_in_same_window"
+gallery shortcode attributes to set all images in a gallery to open in a new/the same window, respectively.
+* By popular demand, made it so "Same Window" will set the target to "_self", thus
+forcing the same window, instead of doing whatever the theme does by default.
 
 = 1.6.1 =
 * Fixed an issue where items with the same custom link were not having lightbox
@@ -150,6 +157,12 @@ directly attached to the post.
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.7.0 =
+* By popular demand, added support for the "open_all_in_new_window" and "open_all_in_same_window"
+gallery shortcode attributes to set all images in a gallery to open in a new/the same window, respectively.
+* By popular demand, made it so "Same Window" will set the target to "_self", thus
+forcing the same window, instead of doing whatever the theme does by default.
 
 = 1.6.1 =
 * Fixed an issue where multiple items with the same custom links were not having lightbox

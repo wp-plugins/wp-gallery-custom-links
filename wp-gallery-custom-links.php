@@ -3,7 +3,7 @@
 Plugin Name: WP Gallery Custom Links
 Plugin URI: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-links/
 Description: Specifiy custom links for WordPress gallery images (instead of attachment or file only).
-Version: 1.6.1
+Version: 1.7.0
 Author: Four Lights Web Development
 Author URI: http://www.fourlightsweb.com
 License: GPL2
@@ -66,7 +66,7 @@ class WPGalleryCustomLinks {
 			'label' => __( 'Gallery Link URL' ),
 			'input' => 'text',
 			'value' => get_post_meta( $post->ID, '_gallery_link_url', true ),
-			'helps' => 'Will replace "Image File" or "Attachment Page" link for this image in the gallery. Use [none] to remove the link from this image.'
+			'helps' => 'Will replace "Image File" or "Attachment Page" link for this image in galleries. Use [none] to remove the link from this image in galleries.'
 		);
 		$target_value = get_post_meta( $post->ID, '_gallery_link_target', true );
 		$form_fields['gallery_link_target'] = array(
@@ -76,7 +76,8 @@ class WPGalleryCustomLinks {
 				<select name="attachments['.$post->ID.'][gallery_link_target]" id="attachments['.$post->ID.'][gallery_link_target]">
 					<option value="">Same Window</option>
 					<option value="_blank"'.($target_value == '_blank' ? ' selected="selected"' : '').'>New Window</option>
-				</select>'
+				</select>',
+			'helps' => 'This setting will be applied to this image in galleries regardless of whether or not a Gallery Link URL has been specified.'
 		);
 		$preserve_click_value = get_post_meta( $post->ID, '_gallery_link_preserve_click', true );
 		$form_fields['gallery_link_preserve_click'] = array(
@@ -87,7 +88,7 @@ class WPGalleryCustomLinks {
 					<option value="remove">Remove</option>
 					<option value="preserve"'.($preserve_click_value == 'preserve' ? ' selected="selected"' : '').'>Keep</option>
 				</select>',
-			'helps' => 'Lightbox and other OnClick events are removed by default.'
+			'helps' => 'Lightbox and other OnClick events are removed by default from this image in galleries. This setting will only be applied to this image in galleries if this image has a Gallery Link URL specified.'
 		);
 		return $form_fields;
 	} // End function apply_filter_attachment_fields_to_edit()
@@ -178,6 +179,31 @@ class WPGalleryCustomLinks {
 			$attachment_meta = get_post_meta( $attachment_id, '_gallery_link_target', true );
 			if( $attachment_meta ) {
 				$target = $attachment_meta;
+			}
+			if( trim( $target ) == '' ) {
+				// If empty string ("Same Window") is selected, set target to _self
+				$target = '_self';
+				// ^^ I'm still a little iffy on the above:
+				// Most people's galleries open things in the same window, except that one lady's theme,
+				// but if I default empty string ("Same Window") to mean "same window" instead of "whatever it normally does" then
+				// she'd have to override every gallery if she wanted to keep her theme's normal behavior.
+				// Shouldn't it be the other way around?  But if I leave it the way it is, the alternative
+				// is she'd have to modify her theme to default to new window in order to open in the same
+				// window at all, and most people don't have that skill level.  But I also don't want
+				// the text "Same Window" to be misleading if it really means "just do what you normally do."
+				// Am I thinking too hard about this? I guess this is what happens when you don't distinguish
+				// between "default" and "separate override option."
+			}
+			if( isset( $attr['open_all_in_new_window'] ) && strtolower( trim( $attr['open_all_in_new_window'] ) ) === 'true' ) {
+				// Override setting if the gallery shortcode says to open everything in a new window
+				// This should accommodate both "3000 images in new window" guy (to some extent) and allow _blank
+				// by default lady to reset her gallery to _blank at once
+				$target = '_blank';
+			}
+			if( isset( $attr['open_all_in_same_window'] ) && strtolower( trim( $attr['open_all_in_same_window'] ) ) === 'true' ) {
+				// Override setting if the gallery shortcode says to open everything in the same window
+				// This should allow _blank by default lady to set her gallery to _self at once
+				$target = '_self';
 			}
 
 			// See how to handle click events for this attachment image
@@ -284,8 +310,11 @@ class WPGalleryCustomLinks {
 				$output = self::add_target( $default_link, $target, $output );
 				
 				// Add a class to the link so we can manipulate it with
-				// javascript later
-				$output = self::add_class( $default_link, 'set-target', $output );
+				// javascript later (only if we're opening it in a new window -
+				// don't want to auto-unbind lightbox if it's the same window)
+				if( $target == '_blank' ) {
+					$output = self::add_class( $default_link, 'set-target', $output );
+				}
 			}
 			
 			// Custom Link
