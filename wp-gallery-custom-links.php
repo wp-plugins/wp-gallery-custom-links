@@ -151,18 +151,25 @@ class WPGalleryCustomLinks {
 		// default, theme-specified or whatever
 		$output = call_user_func( $gallery_shortcode_function, $attr );		
 		
-		// Get the attachment ids for this post, as well as any "include"d attachments
-		$attachments = get_children( array( 'post_parent' => $post_id, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image' ) );
 		$attachment_ids = array();
-		if( count( $attachments ) > 0 ) {
-			$attachment_ids = array_merge( $attachment_ids, array_keys( $attachments ) );
-		}
-		if( isset( $attr['include'] ) ) {
-			$attachment_ids = array_merge( $attachment_ids, explode( ',', $attr['include'] ) );
-		}
-		if( isset( $attr['ids'] ) ) { // Added in WP 3.5
+		if( isset( $attr['ids'] ) ) {
+			// WP 3.5+:
 			$attachment_ids = array_merge( $attachment_ids, explode( ',', $attr['ids'] ) );
-		}
+		} else {
+			// < WP 3.5:
+			// Get the attachment ids for this post, as well as any "include"d attachments
+			$attachments = get_children( array( 'post_parent' => $post_id, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image' ) );
+			if( count( $attachments ) > 0 ) {
+				$attachment_ids = array_merge( $attachment_ids, array_keys( $attachments ) );
+			}
+			if( isset( $attr['include'] ) ) {
+				$attachment_ids = array_merge( $attachment_ids, explode( ',', $attr['include'] ) );
+			}
+		} // End if it's the "ids" attribute way of specifying images or not
+		
+		// Make sure we don't replace the same one multiple times
+		$attachment_ids = array_unique( $attachment_ids );
+		
 		foreach ( $attachment_ids as $attachment_id ) {
 			$link = '';
 			$target = '';
@@ -262,7 +269,6 @@ class WPGalleryCustomLinks {
 					} // End if we have attachment sizes
 				} // End if we have attachment metadata (specifically sizes)
 			} // End if we have a link to swap in or a target to add
-			
 		} // End foreach post attachment
 
 		return $output;
@@ -274,6 +280,8 @@ class WPGalleryCustomLinks {
 		$needle = str_replace( '/', '\/', $needle );
 		$needle = '/href\s*=\s*["\']' . $needle . '["\']/';
 		if( preg_match( $needle, $output ) > 0 ) {
+			$classes_to_add = '';
+		
 			// Remove Link
 			if( $remove_link ) {
 				// Break the output up into two parts: everything before this href
@@ -313,21 +321,29 @@ class WPGalleryCustomLinks {
 				// javascript later (only if we're opening it in a new window -
 				// don't want to auto-unbind lightbox if it's the same window)
 				if( $target == '_blank' ) {
-					$output = self::add_class( $default_link, 'set-target', $output );
+					$classes_to_add .= 'set-target ';
 				}
 			}
 			
-			// Custom Link
-			if( $custom_link != '' && ! $remove_link  ) {
+			// Pre-custom link class
+			if( $custom_link != '' && ! $remove_link  ) { // Same criteria as "custom link" block below
 				// Add a class to the link so we can manipulate it with
 				// javascript later.
 				// Doing this first in case we have the same custom link
 				// on multiple items, in which case that class would be added
 				// to the first item/all items multiple times.
 				if( $preserve_click != 'preserve' ) {
-					$output = self::add_class( $default_link, 'no-lightbox', $output );
+					$classes_to_add .= 'no-lightbox ';
 				}
+			} // End if we have a custom link to swap in
 			
+			// Add any classes, if needed (saves on some regexes to do it all at once)
+			if( $classes_to_add != '' ) {
+				$output = self::add_class( $default_link, trim( $classes_to_add ), $output );
+			}
+			
+			// Custom Link
+			if( $custom_link != '' && ! $remove_link  ) {			
 				// If we found the href to swap out, perform the href replacement,
 				// and add some javascript to prevent lightboxes from kicking in
 				$output = preg_replace( $needle, 'href="' . $custom_link . '"', $output );
