@@ -4,7 +4,7 @@ Donate link: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-li
 Tags: gallery links, gallery link, gallery
 Requires at least: 3.3.2
 Tested up to: 3.5.1
-Stable tag: 1.7.1
+Stable tag: 1.8.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -35,10 +35,18 @@ will be removed to allow them to function as regular links.
 * Use "[none]" as the Gallery Link URL to remove the link for that gallery image.
 * For each gallery image, you can select a Gallery Link Target ("Same Window" or "New Window").
 * For each gallery image, you can select how to handle Lightbox and other onClick events ("Remove" or "Keep").
-* Use [gallery ignore_gallery_link_urls="true"] to ignore the custom links on an entire gallery.
-* Use [gallery open_all_in_new_window="true"] and [gallery open_all_in_same_window="true"] to open all images in an entire gallery in a new window/the same window, respectively.
-* Use [gallery preserve_click_events="true"] to keep Lightbox or other onClick events on all custom-linked images in an entire gallery.
-* Use [gallery remove_links="true"] to remove links on all images in an entire gallery.
+* Use `[gallery ignore_gallery_link_urls="true"]` to ignore the custom links on an entire gallery.
+* Use `[gallery open_all_in_new_window="true"]` and `[gallery open_all_in_same_window="true"]` to open all images in an entire gallery in a new window/the same window, respectively.
+* Use `[gallery preserve_click_events="true"]` to keep Lightbox or other onClick events on all custom-linked images in an entire gallery.
+* Use `[gallery remove_links="true"]` to remove links on all images in an entire gallery.
+
+= Hooks =
+
+* Use "wpgcl_filter_raw_gallery_link_url" to filter the custom gallery link URLs as they come out of the database. Note that this may
+include the value "[none]" if it has been entered to remove the link later on. Example:
+
+`add_filter( 'wpgcl_filter_raw_gallery_link_url', 'my_gallery_link_url_filter', 10, 3 );
+function my_gallery_link_url_filter( $link, $attachment_id, $post_id ) { return '/en/' . $link; }`
 
 == Installation ==
 
@@ -82,6 +90,9 @@ Check your HTML and CSS for these changes and adjust accordingly.
 1. The additional WP Gallery Custom Link fields.
 
 == Changelog ==
+
+= 1.8.0 =
+* By popular demand, added a new filter on each link value: wpgcl_filter_raw_gallery_link_url
 
 = 1.7.1 =
 * A few performance increases
@@ -160,6 +171,9 @@ directly attached to the post.
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.8.0 =
+* By popular demand, added a new filter on each link value: wpgcl_filter_raw_gallery_link_url
 
 = 1.7.1 =
 * A few performance increases
