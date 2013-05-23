@@ -55,35 +55,81 @@ function my_gallery_link_url_filter( $link, $attachment_id, $post_id ) { return 
 
 == Frequently Asked Questions ==
 
-= Will this plugin work with my theme's galleries? =
+= #1) Will this plugin work with my theme's galleries? =
 
 Possibly.  WP Gallery Custom Links plugin was designed for use with 
-1) WordPress's [gallery] shortcode and 2) images
-attached to the post/page.  Some themes use these features, and others
+1) WordPress's [gallery] shortcode and 2) images uploaded through the 
+WordPress media manager. Some themes use these features, and others
 have their own proprietary way of saving gallery images and drawing out the gallery.
-Provided your theme meets the criteria above, the plugin *should* work with it.
+Provided your theme meets the criteria above, the plugin should work with it.
 
-= Will this plugin work with NextGen galleries? =
+= #2) Will this plugin work with NextGen galleries? =
 
-No, this plugin is *not* compatible with NextGen galleries.  WP Gallery Custom Links was
-designed for use with 1) WordPress's [gallery] shortcode and 2) images
-attached to the post/page.  NextGen galleries uses its own [nggallery] etc. shortcodes
+No, this plugin is not compatible with NextGen galleries.  WP Gallery Custom Links was
+designed for use with 1) WordPress's [gallery] shortcode and 2) images uploaded through the 
+WordPress media manager.  NextGen galleries uses its own [nggallery] etc. shortcodes
 that function outside of the WordPress [gallery] shortcode.
 
-= I've set my gallery to remove Lightbox effects, but they are still coming up. Why? =
-
-Your Lightbox javascript may be running after the WP Gallery Custom Links javascript.
-This may cause the Lightbox effect to be applied after the WP Gallery Custom Links
-script attempts to remove it. Try moving your Lightbox javascript above the
-WP Gallery Custom Links javascript.  Note that you may need to add your Lightbox
-script as a dependency for WP Gallery Custom Links to make sure WP Gallery Custom Links
-runs after it. 
-
-= When I enable the plugin, the styling on my gallery changes. Why? =
+= #3) When I enable the plugin, the styling on my gallery changes. Why? =
 
 The way the plugin works requires the gallery generation code to be run twice.  This
 may result in it being labeled as "#gallery-2" instead of "#gallery-1." 
 Check your HTML and CSS for these changes and adjust accordingly.
+
+= #4) I've set my gallery to remove Lightbox effects, but they are still coming up, possibly with nothing in them. Why? =
+
+First of all, there are many, many different themes and plugins that all have different
+ways of doing Lightboxes, Shadowboxes, etc., which makes it nigh impossible for this plugin
+to be able to auto-detect and disable those effects in absolutely all cases - your site may need
+some minor adjustments to how its javascripts are set up/ordered before it will be compatible.
+
+That said, your Lightbox javascript may be running after the WP Gallery Custom Links javascript.
+This may cause the Lightbox effect to be applied after the WP Gallery Custom Links
+script attempts to remove it.
+
+To fix this, first check your footer.php theme file and see if you find the
+Lightbox &lt;script&gt; tag(s) to relocate to inside the &lt;head&gt; tags of header.php.  Since
+the WP Gallery Custom Links javascript is set to go into the footer, this will help ensure the
+other script runs first (and then WP Gallery Custom Links can turn off what it has turned on).
+You will also want to double-check that your Lightbox still works in the places it needs to.
+
+If the above script-moving solution isn't an option, you can tell
+WP Gallery Custom Links which Lightbox script it needs to wait to load before it can load (i.e. declare
+a dependency).  It gets a little programmy, but you can follow these steps to do this:
+
+* Google for "What's my ip?" to find your IP address
+* Drop the following code into your theme's functions.php file (this will be temporary), replacing 111.111.111.111 with your own IP address (to help ensure only you see its output):
+`if($_SERVER['REMOTE_ADDR'] == '111.111.111.111') {
+	add_action('wp_footer', 'see_enqueued');
+}
+function see_enqueued( $handles = array() ) {
+	global $wp_scripts;
+	
+	// scripts
+	foreach ( $wp_scripts -> registered as $registered )
+	$script_urls[ $registered -> handle ] = $registered -> src;
+	
+	// output of values
+	$output = '';
+	foreach ( $wp_scripts -> queue as $handle ) {
+		if ( ! empty( $script_urls[ $handle ] ) )
+			$output .= 'Handle: ' . $handle . ' - Script: ' . $script_urls[ $handle ] . '<br />';
+	}
+	echo $output;
+}`
+* Reload a page on your site and look near the bottom for the handle of your Lightbox script (I'll use "my-lightbox-js-handle" as an example), copy it, and remove the code from your functions.php file
+* Open up wp-gallery-custom-links.php in the WP Gallery Custom Links plugin folder and look for this line:
+	
+`array( 'jquery' ),`
+
+* Add to this line your Lightbox script(s) handle:
+	
+`array( 'jquery', 'my-lightbox-js-handle' ),`
+
+* Note that any updates to the plugin you do from this point on will need to have this change maintained.
+* If you reload your gallery and view the page source, you should now see that the WP Gallery Custom Links javascript file comes after your Lightbox javascript file, and the Lightbox effect should now be removed from the gallery.
+
+
 
 == Screenshots ==
 
