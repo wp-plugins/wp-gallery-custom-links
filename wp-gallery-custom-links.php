@@ -34,19 +34,20 @@ class WPGalleryCustomLinks {
 	// [gallery] ->
 	// 		$GLOBALS['shortcode_tags']['gallery'] ->
 	//			apply_filter('post_gallery') *
-	//			apply_filter('post_gallery') (first call) ->
+	//			apply_filter('post_gallery') (first call, will include second recursive call, and then does actual link replacing) ->
 	//				$GLOBALS['shortcode_tags']['gallery'] ->
 	//					apply_filter('post_gallery') *
 	//					apply_filter('post_gallery') (second call, simply returns output passed in)
-	//			return "filter" $output to original $GLOBALS['shortcode_tags']['gallery'] call
+	//				return same content passed in to this second recursive call 
+	//			return "filter" $output with replaced links to original $GLOBALS['shortcode_tags']['gallery'] call
 	private static $first_call = true;
 	
 	public static function init() {	
 		// Add the filter for editing the custom url field
-		add_filter( 'attachment_fields_to_edit', array( 'WPGalleryCustomLinks', 'apply_filter_attachment_fields_to_edit' ), null, 2);
+		add_filter( 'attachment_fields_to_edit', array( 'WPGalleryCustomLinks', 'apply_filter_attachment_fields_to_edit' ), null, 2 );
 		
 		// Add the filter for saving the custom url field
-		add_filter( 'attachment_fields_to_save', array( 'WPGalleryCustomLinks', 'apply_filter_attachment_fields_to_save' ), null , 2);
+		add_filter( 'attachment_fields_to_save', array( 'WPGalleryCustomLinks', 'apply_filter_attachment_fields_to_save' ), null , 2 );
 		
 		// Add the filter for when the post_gallery is written out
 		add_filter( 'post_gallery', array( 'WPGalleryCustomLinks', 'apply_filter_post_gallery' ), 999, 2 );
@@ -62,12 +63,14 @@ class WPGalleryCustomLinks {
 	} // End function init()
 	
 	public static function apply_filter_attachment_fields_to_edit( $form_fields, $post ) {
+		// Gallery Link URL field
 		$form_fields['gallery_link_url'] = array(
 			'label' => __( 'Gallery Link URL' ),
 			'input' => 'text',
 			'value' => get_post_meta( $post->ID, '_gallery_link_url', true ),
 			'helps' => 'Will replace "Image File" or "Attachment Page" link for this image in galleries. Use [none] to remove the link from this image in galleries.'
 		);
+		// Gallery Link Target field
 		$target_value = get_post_meta( $post->ID, '_gallery_link_target', true );
 		$form_fields['gallery_link_target'] = array(
 			'label' => __( 'Gallery Link Target' ),
@@ -79,6 +82,7 @@ class WPGalleryCustomLinks {
 				</select>',
 			'helps' => 'This setting will be applied to this image in galleries regardless of whether or not a Gallery Link URL has been specified.'
 		);
+		// Gallery Link OnClick Effect field
 		$preserve_click_value = get_post_meta( $post->ID, '_gallery_link_preserve_click', true );
 		$form_fields['gallery_link_preserve_click'] = array(
 			'label' => __( 'Gallery Link OnClick Effect' ),
@@ -94,6 +98,7 @@ class WPGalleryCustomLinks {
 	} // End function apply_filter_attachment_fields_to_edit()
 	
 	public static function apply_filter_attachment_fields_to_save( $post, $attachment ) {
+		// Save our custom meta fields
 		if( isset( $attachment['gallery_link_url'] ) ) {
 			update_post_meta( $post['ID'], '_gallery_link_url', $attachment['gallery_link_url'] );
 		}
@@ -157,12 +162,13 @@ class WPGalleryCustomLinks {
 			$attachment_ids = array_merge( $attachment_ids, explode( ',', $attr['ids'] ) );
 		} else {
 			// < WP 3.5:
-			// Get the attachment ids for this post, as well as any "include"d attachments
+			// Get the attachment ids for this post
 			$attachments = get_children( array( 'post_parent' => $post_id, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image' ) );
 			if( count( $attachments ) > 0 ) {
 				$attachment_ids = array_merge( $attachment_ids, array_keys( $attachments ) );
 			}
 		} // End if it's the "ids" attribute way of specifying images or not
+		// Add in any "include"d attachmentIDs
 		if( isset( $attr['include'] ) ) {
 			$attachment_ids = array_merge( $attachment_ids, explode( ',', $attr['include'] ) );
 		}
