@@ -76,7 +76,13 @@ The way the plugin works requires the gallery generation code to be run twice.  
 may result in it being labeled as "#gallery-2" instead of "#gallery-1." 
 Check your HTML and CSS for these changes and adjust accordingly.
 
-= #4) I've set my gallery to remove Lightbox effects, but they are still coming up, possibly with nothing in them. Why? =
+= #4) I'm not using the [gallery] shortcode, but I'd still like to use the custom link in my own gallery code.  How can I get the custom link? =
+
+The custom links are stored as meta values for images, and can be accessed with the following:
+
+`$custom_url = get_post_meta( $post_id, '_gallery_link_url', true );`
+
+= #5) I've set my gallery to remove Lightbox effects, but they are still coming up, possibly with nothing in them. Why? =
 
 First of all, there are many, many different themes and plugins that all have different
 ways of doing Lightboxes, Shadowboxes, etc., which makes it nigh impossible for this plugin
