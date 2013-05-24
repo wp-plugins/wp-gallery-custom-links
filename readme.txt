@@ -80,26 +80,25 @@ Check your HTML and CSS for these changes and adjust accordingly.
 
 The custom links are stored as meta values for images, and can be accessed with the following:
 
-`$custom_url = get_post_meta( $post_id, '_gallery_link_url', true );`
+`$custom_url = get_post_meta( $attachment_id, '_gallery_link_url', true );`
 
 = #5) I've set my gallery to remove Lightbox effects, but they are still coming up, possibly with nothing in them. Why? =
 
-First of all, there are many, many different themes and plugins that all have different
-ways of doing Lightboxes, Shadowboxes, etc., which makes it nigh impossible for this plugin
-to be able to auto-detect and disable those effects in absolutely all cases - your site may need
+There are many, many different themes and plugins that all have different
+ways of doing Lightboxes, Shadowboxes, etc. - your site may need
 some minor adjustments to how its javascripts are set up/ordered before it will be compatible.
 
-That said, your Lightbox javascript may be running after the WP Gallery Custom Links javascript.
+It's likely your Lightbox javascript is running after the WP Gallery Custom Links javascript.
 This may cause the Lightbox effect to be applied after the WP Gallery Custom Links
 script attempts to remove it.
 
-To fix this, first check your footer.php theme file and see if you find the
+To fix this, first try checking your footer.php theme file and see if you find the
 Lightbox &lt;script&gt; tag(s) to relocate to inside the &lt;head&gt; tags of header.php.  Since
 the WP Gallery Custom Links javascript is set to go into the footer, this will help ensure the
 other script runs first (and then WP Gallery Custom Links can turn off what it has turned on).
 You will also want to double-check that your Lightbox still works in the places it needs to.
 
-If the above script-moving solution isn't an option, you can tell
+If the above script-moving solution doesn't look like an option, you can tell
 WP Gallery Custom Links which Lightbox script it needs to wait to load before it can load (i.e. declare
 a dependency).  It gets a little programmy, but you can follow these steps to do this:
 
