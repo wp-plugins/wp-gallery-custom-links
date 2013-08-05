@@ -3,7 +3,7 @@ Contributors: fourlightsweb
 Donate link: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-links/#donate
 Tags: gallery links, gallery link, gallery
 Requires at least: 3.3.2
-Tested up to: 3.5.1
+Tested up to: 3.6.0
 Stable tag: 1.8.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -127,14 +127,26 @@ function see_enqueued( $handles = array() ) {
 	
 `array( 'jquery' ),`
 
-* Add to this line your Lightbox script(s) handle:
+* Add your Lightbox script(s) handle to this line, so it now looks like:
 	
 `array( 'jquery', 'my-lightbox-js-handle' ),`
 
 * Note that any updates to the plugin you do from this point on will need to have this change maintained.
 * If you reload your gallery and view the page source, you should now see that the WP Gallery Custom Links javascript file comes after your Lightbox javascript file, and the Lightbox effect should now be removed from the gallery.
 
+= #6) When I enable the plugin, nothing in my gallery changes, even though I have custom links set. Why? =
 
+The first thing you probably want to check is that the hook that this plugin uses (the "post_gallery" filter) is being called.
+Some themes and gallery plugins have code that replaces the default WordPress gallery code, and the post_gallery
+filter gets left out, which means this plugin never gets called to do anything.  If you do a "View Source" on your gallery page
+and see a javascript file named "wp-gallery-custom-links.js" being included, but items you know have custom links are not
+using the custom links, try looking around in your theme/gallery plugin to see if the gallery shortcode is
+being replaced, and if that function doesn't contain a reference to post_gallery, try adding this near the top of
+the function (assumes the attributes variable passed to the shortcode function is named $attr):
+
+`$output = apply_filters('post_gallery', '', $attr);
+if ( $output != '' )
+    return $output;`
 
 == Screenshots ==
 
