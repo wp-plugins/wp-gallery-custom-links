@@ -4,7 +4,7 @@ Donate link: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-li
 Tags: gallery links, gallery link, gallery
 Requires at least: 3.3.2
 Tested up to: 3.6.0
-Stable tag: 1.8.0
+Stable tag: 1.9.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -17,7 +17,7 @@ Specify custom links for WordPress gallery images (instead of attachment or file
 If you've ever had a WordPress gallery of staff, product, or other images and needed
 to link them to other pages but couldn't, this plugin is for you!
  
-This plugin adds a "Gallery Link URL" field when editing post images. If the image
+This plugin adds a "Gallery Link URL" field when editing images. If the image
 is included in a gallery, the "Gallery Link URL" value will be used as the link on
 the image instead of the raw file or the attachment post.  There are also several
 additional options (see "Usage" below).
@@ -154,6 +154,17 @@ if ( $output != '' )
 
 == Changelog ==
 
+= 1.9.0 =
+* By popular demand, moved the help notes under each field into tooltips so the form won't be so tall.
+* The javascript that attempts to disable lightboxes now runs in window.onload in addition to document.ready.
+Hopefully this will cut down on some of the issues where lightboxes keep popping up without having to mess
+with javascript dependencies at the code level. Any other window.onload function should be preserved.
+* Added a javascript function detect for jQuery's off() function, since it only came into existence in 1.7.
+If off() isn't defined, unbind() is called instead.
+* Resolved an issue where making an image have no link occasionally resulted in all previous images in the gallery
+disappearing from the display.
+* Added a translation for Polish, courtesy of Przemyslaw Trawicki (thanks!)
+
 = 1.8.0 =
 * By popular demand, added a new filter on each link value: wpgcl_filter_raw_gallery_link_url
 
@@ -234,6 +245,17 @@ directly attached to the post.
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.9.0 =
+* By popular demand, moved the help notes under each field into tooltips so the form won't be so tall.
+* The javascript that attempts to disable lightboxes now runs in window.onload in addition to document.ready.
+Hopefully this will cut down on some of the issues where lightboxes keep popping up without having to mess
+with javascript dependencies at the code level. Any other window.onload function should be preserved.
+* Added a javascript function detect for jQuery's off() function, since it only came into existence in 1.7.
+If off() isn't defined, unbind() is called instead.
+* Resolved an issue where making an image have no link occasionally resulted in all previous images in the gallery
+disappearing from the display.
+* Added a translation for Polish, courtesy of Przemyslaw Trawicki (thanks!)
 
 = 1.8.0 =
 * By popular demand, added a new filter on each link value: wpgcl_filter_raw_gallery_link_url
