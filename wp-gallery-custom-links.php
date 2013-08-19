@@ -41,16 +41,18 @@ class WPGalleryCustomLinks {
 	//				return same content passed in to this second recursive call 
 	//			return "filter" $output with replaced links to original $GLOBALS['shortcode_tags']['gallery'] call
 	private static $first_call = true;
+	private static $textdomain_id = 'wp-gallery-custom-links';
+	private static $class_name = 'WPGalleryCustomLinks';
 	
 	public static function init() {	
 		// Add the filter for editing the custom url field
-		add_filter( 'attachment_fields_to_edit', array( 'WPGalleryCustomLinks', 'apply_filter_attachment_fields_to_edit' ), null, 2 );
+		add_filter( 'attachment_fields_to_edit', array( self::$class_name, 'apply_filter_attachment_fields_to_edit' ), null, 2 );
 		
 		// Add the filter for saving the custom url field
-		add_filter( 'attachment_fields_to_save', array( 'WPGalleryCustomLinks', 'apply_filter_attachment_fields_to_save' ), null , 2 );
+		add_filter( 'attachment_fields_to_save', array( self::$class_name, 'apply_filter_attachment_fields_to_save' ), null , 2 );
 		
 		// Add the filter for when the post_gallery is written out
-		add_filter( 'post_gallery', array( 'WPGalleryCustomLinks', 'apply_filter_post_gallery' ), 999, 2 );
+		add_filter( 'post_gallery', array( self::$class_name, 'apply_filter_post_gallery' ), 999, 2 );
 		
 		// Require the javascript to disable lightbox
 		wp_enqueue_script(
@@ -60,39 +62,42 @@ class WPGalleryCustomLinks {
 			'1.0',
 			true
 		);
+		
+		// Load translations
+		load_plugin_textdomain( self::$textdomain_id, false, basename( dirname( __FILE__ ) ) . '/languages' );
 	} // End function init()
 	
 	public static function apply_filter_attachment_fields_to_edit( $form_fields, $post ) {
 		// Gallery Link URL field
 		$form_fields['gallery_link_url'] = array(
-			'label' => __( 'Gallery Link URL' ),
+			'label' => __( 'Gallery Link URL', self::$textdomain_id ),
 			'input' => 'text',
 			'value' => get_post_meta( $post->ID, '_gallery_link_url', true ),
-			'helps' => 'Will replace "Image File" or "Attachment Page" link for this image in galleries. Use [none] to remove the link from this image in galleries.'
+			'helps' => __( 'Will replace "Image File" or "Attachment Page" link for this image in galleries. Use [none] to remove the link from this image in galleries.', self::$textdomain_id )
 		);
 		// Gallery Link Target field
 		$target_value = get_post_meta( $post->ID, '_gallery_link_target', true );
 		$form_fields['gallery_link_target'] = array(
-			'label' => __( 'Gallery Link Target' ),
+			'label' => __( 'Gallery Link Target', self::$textdomain_id ),
 			'input'	=> 'html',
 			'html'	=> '
 				<select name="attachments['.$post->ID.'][gallery_link_target]" id="attachments['.$post->ID.'][gallery_link_target]">
-					<option value="">Same Window</option>
-					<option value="_blank"'.($target_value == '_blank' ? ' selected="selected"' : '').'>New Window</option>
+					<option value="">'.__( 'Same Window', self::$textdomain_id ).'</option>
+					<option value="_blank"'.($target_value == '_blank' ? ' selected="selected"' : '').'>'.__( 'New Window', self::$textdomain_id ).'</option>
 				</select>',
-			'helps' => 'This setting will be applied to this image in galleries regardless of whether or not a Gallery Link URL has been specified.'
+			'helps' => __( 'This setting will be applied to this image in galleries regardless of whether or not a Gallery Link URL has been specified.', self::$textdomain_id )
 		);
 		// Gallery Link OnClick Effect field
 		$preserve_click_value = get_post_meta( $post->ID, '_gallery_link_preserve_click', true );
 		$form_fields['gallery_link_preserve_click'] = array(
-			'label' => __( 'Gallery Link OnClick Effect' ),
+			'label' => __( 'Gallery Link OnClick Effect', self::$textdomain_id ),
 			'input'	=> 'html',
 			'html'	=> '
 				<select name="attachments['.$post->ID.'][gallery_link_preserve_click]" id="attachments['.$post->ID.'][gallery_link_preserve_click]">
-					<option value="remove">Remove</option>
-					<option value="preserve"'.($preserve_click_value == 'preserve' ? ' selected="selected"' : '').'>Keep</option>
+					<option value="remove">'.__( 'Remove', self::$textdomain_id ).'</option>
+					<option value="preserve"'.($preserve_click_value == 'preserve' ? ' selected="selected"' : '').'>'.__( 'Keep', self::$textdomain_id ).'</option>
 				</select>',
-			'helps' => 'Lightbox and other OnClick events are removed by default from this image in galleries. This setting will only be applied to this image in galleries if this image has a Gallery Link URL specified.'
+			'helps' => __( 'Lightbox and other OnClick events are removed by default from this image in galleries. This setting will only be applied to this image in galleries if this image has a Gallery Link URL specified.', self::$textdomain_id )
 		);
 		return $form_fields;
 	} // End function apply_filter_attachment_fields_to_edit()
