@@ -59,7 +59,7 @@ class WPGalleryCustomLinks {
 			'wp-gallery-custom-links-js',
 			plugins_url( '/wp-gallery-custom-links.js', __FILE__ ),
 			array( 'jquery' ),
-			'1.0',
+			'1.1',
 			true
 		);
 		
@@ -68,36 +68,50 @@ class WPGalleryCustomLinks {
 	} // End function init()
 	
 	public static function apply_filter_attachment_fields_to_edit( $form_fields, $post ) {
+		$help_css = 'display:none;position:absolute;background-color:#ffffe0;text-align:left;border:1px solid #dfdfdf;padding:10px;width:75%;font-weight:normal;border-radius:3px;';
+	
 		// Gallery Link URL field
 		$form_fields['gallery_link_url'] = array(
-			'label' => __( 'Gallery Link URL', self::$textdomain_id ),
+			'label' => __( 'Gallery Link URL', self::$textdomain_id ) .
+				' <a href="#" onclick="jQuery(\'#wpgcl_gallery_link_url_help\').show(); return false;" onblur="jQuery(\'#wpgcl_gallery_link_url_help\').hide();">[?]</a>' . 
+				'<div id="wpgcl_gallery_link_url_help" style="'.$help_css.'">' .
+				__( 'Will replace "Image File" or "Attachment Page" link for this image in galleries. Use [none] to remove the link from this image in galleries.', self::$textdomain_id ) .
+				' <a href="#" onclick="jQuery(\'#wpgcl_gallery_link_url_help\').hide(); return false;">[X]</a>' .
+				'</div>',
 			'input' => 'text',
-			'value' => get_post_meta( $post->ID, '_gallery_link_url', true ),
-			'helps' => __( 'Will replace "Image File" or "Attachment Page" link for this image in galleries. Use [none] to remove the link from this image in galleries.', self::$textdomain_id )
+			'value' => get_post_meta( $post->ID, '_gallery_link_url', true )
 		);
 		// Gallery Link Target field
 		$target_value = get_post_meta( $post->ID, '_gallery_link_target', true );
 		$form_fields['gallery_link_target'] = array(
-			'label' => __( 'Gallery Link Target', self::$textdomain_id ),
+			'label' => __( 'Gallery Link Target', self::$textdomain_id ) .
+				' <a href="#" onclick="jQuery(\'#wpgcl_gallery_link_target_help\').show(); return false;" onblur="jQuery(\'#wpgcl_gallery_link_target_help\').hide();">[?]</a>' . 
+				'<div id="wpgcl_gallery_link_target_help" style="'.$help_css.'">' .
+				__( 'This setting will be applied to this image in galleries regardless of whether or not a Gallery Link URL has been specified.', self::$textdomain_id ) .
+				' <a href="#" onclick="jQuery(\'#wpgcl_gallery_link_target_help\').hide(); return false;">[X]</a>' .
+				'</div>',
 			'input'	=> 'html',
 			'html'	=> '
 				<select name="attachments['.$post->ID.'][gallery_link_target]" id="attachments['.$post->ID.'][gallery_link_target]">
 					<option value="">'.__( 'Same Window', self::$textdomain_id ).'</option>
 					<option value="_blank"'.($target_value == '_blank' ? ' selected="selected"' : '').'>'.__( 'New Window', self::$textdomain_id ).'</option>
-				</select>',
-			'helps' => __( 'This setting will be applied to this image in galleries regardless of whether or not a Gallery Link URL has been specified.', self::$textdomain_id )
+				</select>'
 		);
 		// Gallery Link OnClick Effect field
 		$preserve_click_value = get_post_meta( $post->ID, '_gallery_link_preserve_click', true );
 		$form_fields['gallery_link_preserve_click'] = array(
-			'label' => __( 'Gallery Link OnClick Effect', self::$textdomain_id ),
+			'label' => __( 'Gallery Link OnClick Effect', self::$textdomain_id ) .
+				' <a href="#" onclick="jQuery(\'#wpgcl_gallery_link_preserve_click_help\').show(); return false;" onblur="jQuery(\'#wpgcl_gallery_link_preserve_click_help\').hide();">[?]</a>' . 
+				'<div id="wpgcl_gallery_link_preserve_click_help" style="'.$help_css.'">' .
+				__( 'Lightbox and other OnClick events are removed by default from this image in galleries. This setting will only be applied to this image in galleries if this image has a Gallery Link URL specified.', self::$textdomain_id ) .
+				' <a href="#" onclick="jQuery(\'#wpgcl_gallery_link_preserve_click_help\').hide(); return false;">[X]</a>' .
+				'</div>',
 			'input'	=> 'html',
 			'html'	=> '
 				<select name="attachments['.$post->ID.'][gallery_link_preserve_click]" id="attachments['.$post->ID.'][gallery_link_preserve_click]">
 					<option value="remove">'.__( 'Remove', self::$textdomain_id ).'</option>
 					<option value="preserve"'.($preserve_click_value == 'preserve' ? ' selected="selected"' : '').'>'.__( 'Keep', self::$textdomain_id ).'</option>
-				</select>',
-			'helps' => __( 'Lightbox and other OnClick events are removed by default from this image in galleries. This setting will only be applied to this image in galleries if this image has a Gallery Link URL specified.', self::$textdomain_id )
+				</select>'
 		);
 		return $form_fields;
 	} // End function apply_filter_attachment_fields_to_edit()
@@ -300,8 +314,12 @@ class WPGalleryCustomLinks {
 			// Remove Link
 			if( $remove_link ) {
 				// Break the output up into two parts: everything before this href
-				// and everything after
-				$output_parts = explode( $default_link, $output );
+				// and everything after. Note: sometimes the image url will 
+				// appear multiple times in the source (e.g. "data-orig-file" in 
+				// jetpack), so use the regex needle to find the href first, then break
+				// up the link.
+				$output_parts = preg_replace( $needle, '^^^HREF^^^', $output );
+				$output_parts = explode( '^^^HREF^^^', $output_parts );
 				if( count( $output_parts ) == 2 ) {
 					$output_part_1 = $output_parts[0];
 					$output_part_2 = $output_parts[1];
@@ -318,12 +336,15 @@ class WPGalleryCustomLinks {
 					$pos = strpos( $output_part_2, '>' );
 					if( $pos !== false ) {
 						$output_part_2 = substr( $output_part_2, $pos+1 );
+						// Add in a span where the link used to be, just in case
+						$output_part_2 = '<span class="no-link'. ( $preserve_click != 'preserve' ? ' no-lightbox' : '' ) . '">' . $output_part_2;
 					}
 					
 					// And then take out the first </a> that comes after that
 					$pos = strpos( $output_part_2, '</a>' );
 					if( $pos !== false ) {
-						$output_part_2 = substr( $output_part_2, 0, $pos ) . substr( $output_part_2, $pos+4 );
+						// Also close out the span where the link used to be
+						$output_part_2 = substr( $output_part_2, 0, $pos ) . '</span>' . substr( $output_part_2, $pos+4 );
 					}
 						
 					// And then stitch them back together again, without the link parts
