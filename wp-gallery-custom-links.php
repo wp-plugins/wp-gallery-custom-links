@@ -301,8 +301,12 @@ class WPGalleryCustomLinks {
 					$output_part_1 = $output_parts[0];
 					$output_part_2 = $output_parts[1];
 				
-					// Take out the <a> from the end of part 1
-					$output_part_1 = preg_replace( '/<\s*a\s+.*$/', '', $output_part_1 );
+					// Take out the <a> from the end of part 1, from its
+					// opening angle bracket
+					$pos = strrpos( $output_part_1, '<' );
+					if( $pos !== false ) {
+						$output_part_1 = substr( $output_part_1, 0, $pos );
+					}
 					
 					// And then take out everything up through the first > that comes after that
 					// (which would be the closing angle bracket of <a>)
