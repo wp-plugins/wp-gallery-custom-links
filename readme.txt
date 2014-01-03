@@ -112,7 +112,7 @@ if ( $output != '' )
 	
 You may want to see http://wordpress.org/support/topic/wont-work-syntax-error for an example of adding this code.
 	
-This thing to try is a bit on the programmy side, so if it's over your head, my suggestion would be to contact your theme author
+This thing to try is a bit on the programmy side, so if you're having trouble, my suggestion would be to contact your theme author
 and ask that they support the "post_gallery" filter in their gallery shortcode function.  This would not only fix it for your theme most thoroughly,
 but would also fix it for any future users also using that same theme.  Otherwise, any WordPress developer should be able to help you
 with the code changes to customize your theme to support the post_gallery filter like WordPress core (not something I consider in the realm of free support, sorry).
