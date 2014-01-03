@@ -2,7 +2,7 @@
 Contributors: fourlightsweb
 Donate link: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-links/#donate
 Tags: gallery links, gallery link, gallery
-Requires at least: 3.3.2
+Requires at least: 3.3.1
 Tested up to: 3.8.0
 Stable tag: 1.9.0
 License: GPLv2 or later
