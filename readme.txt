@@ -3,7 +3,7 @@ Contributors: fourlightsweb
 Donate link: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-links/#donate
 Tags: gallery links, gallery link, gallery
 Requires at least: 3.3.2
-Tested up to: 3.6.1
+Tested up to: 3.8.0
 Stable tag: 1.9.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -83,6 +83,9 @@ The custom links are stored as meta values for images, and can be accessed with 
 
 `$custom_url = get_post_meta( $attachment_id, '_gallery_link_url', true );`
 
+Please note that "$attachment_id" is a variable for the post ID of the image - you will need to have already defined and set this variable
+in your own code and use your variable in this spot.  "$attachment_id" is just an example of what it could be named.
+
 = #5) I've set my gallery to remove Lightbox effects, but they are still coming up, possibly with nothing in them. Why? =
 
 Version 1.9 (hopefully) resolves most of these issues, but if you're still having this problem,
@@ -90,17 +93,29 @@ see #5 in the old version's readme file here: http://plugins.svn.wordpress.org/w
 
 = #6) When I enable the plugin, nothing in my gallery changes, even though I have custom links set. Why? =
 
-The first thing you probably want to check is that the hook that this plugin uses (the "post_gallery" filter) is being called.
+Thing to try #1: make sure your gallery is set to use either attachment or file links. If the gallery is set to link to "none" there
+will be no links to match on, thus this plugin won't be able to swap in custom values.
+
+Thing to try #2: make sure you have the onclick effect set to "remove" if you continue to have undesired lightbox/carousel popups.
+
+Thing to try #3: make sure the hook that this plugin uses (the "post_gallery" filter) is being called.
 Some themes and gallery plugins have code that replaces the default WordPress gallery code, and the post_gallery
 filter gets left out, which means this plugin never gets called to do anything.  If you do a "View Source" on your gallery page
 and see a javascript file named "wp-gallery-custom-links.js" being included, but items you know have custom links are not
 using the custom links, try looking around in your theme/gallery plugin to see if the gallery shortcode is
 being replaced, and if that function doesn't contain a reference to post_gallery, try adding this near the top of
-the function (assumes the attributes variable passed to the shortcode function is named $attr):
+the function (assumes the attributes variable passed to the shortcode function is named "$attr"):
 
 `$output = apply_filters('post_gallery', '', $attr);
 if ( $output != '' )
     return $output;`
+	
+You may want to see http://wordpress.org/support/topic/wont-work-syntax-error for an example of adding this code.
+	
+This thing to try is a bit on the programmy side, so if it's over your head, my suggestion would be to contact your theme author
+and ask that they support the "post_gallery" filter in their gallery shortcode function.  This would not only fix it for your theme most thoroughly,
+but would also fix it for any future users also using that same theme.  Otherwise, any WordPress developer should be able to help you
+with the code changes to customize your theme to support the post_gallery filter like WordPress core (not something I consider in the realm of free support, sorry).
 	
 = #7) The custom links are working fine, but I need help changing the formatting/styling on my gallery, such as spacing between images, aligning images, or changing image size. =
 
