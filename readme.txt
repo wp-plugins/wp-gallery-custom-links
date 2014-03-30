@@ -35,6 +35,7 @@ will be removed to allow them to function as regular links.
 * Use "[none]" as the Gallery Link URL to remove the link for that gallery image.
 * For each gallery image, you can select a Gallery Link Target ("Same Window" or "New Window").
 * For each gallery image, you can select how to handle Lightbox and other onClick events ("Remove" or "Keep").
+* For each gallery link, you can add additional css classes.
 * Use `[gallery ignore_gallery_link_urls="true"]` to ignore the custom links on an entire gallery.
 * Use `[gallery open_all_in_new_window="true"]` and `[gallery open_all_in_same_window="true"]` to open all images in an entire gallery in a new window/the same window, respectively.
 * Use `[gallery preserve_click_events="true"]` to keep Lightbox or other onClick events on all custom-linked images in an entire gallery.
