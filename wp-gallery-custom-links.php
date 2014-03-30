@@ -3,7 +3,7 @@
 Plugin Name: WP Gallery Custom Links
 Plugin URI: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-links/
 Description: Specifiy custom links for WordPress gallery images (instead of attachment or file only).
-Version: 1.9.0
+Version: 1.10.0
 Author: Four Lights Web Development
 Author URI: http://www.fourlightsweb.com
 License: GPL2
@@ -113,6 +113,17 @@ class WPGalleryCustomLinks {
 					<option value="preserve"'.($preserve_click_value == 'preserve' ? ' selected="selected"' : '').'>'.__( 'Keep', self::$textdomain_id ).'</option>
 				</select>'
 		);
+		// Gallery Link additional css classes field
+		$form_fields['gallery_link_additional_css_classes'] = array(
+			'label' => __( 'Gallery Link Additional CSS Classes', self::$textdomain_id ) .
+				' <a href="#" onclick="jQuery(\'#wpgcl_gallery_link_additional_css_classes_help\').show(); return false;" onblur="jQuery(\'#wpgcl_gallery_link_additional_css_classes_help\').hide();">[?]</a>' . 
+				'<div id="wpgcl_gallery_link_additional_css_classes_help" style="'.$help_css.'">' .
+				__( 'Additional CSS classes specified here will be applied to the <strong><em>link</em></strong> around this image in galleries regardless of whether or not a Gallery Link URL has been specified.', self::$textdomain_id ) .
+				' <a href="#" onclick="jQuery(\'#wpgcl_gallery_link_additional_css_classes_help\').hide(); return false;">[X]</a>' .
+				'</div>',
+			'input' => 'text',
+			'value' => get_post_meta( $post->ID, '_gallery_link_additional_css_classes', true )
+		);
 		return $form_fields;
 	} // End function apply_filter_attachment_fields_to_edit()
 	
@@ -126,6 +137,9 @@ class WPGalleryCustomLinks {
 		}
 		if( isset( $attachment['gallery_link_preserve_click'] ) ) {
 			update_post_meta( $post['ID'], '_gallery_link_preserve_click', $attachment['gallery_link_preserve_click'] );
+		}
+		if( isset( $attachment['gallery_link_additional_css_classes'] ) ) {
+			update_post_meta( $post['ID'], '_gallery_link_additional_css_classes', $attachment['gallery_link_additional_css_classes'] );
 		}
 		return $post;
 	} // End function apply_filter_attachment_fields_to_save() 
@@ -200,6 +214,7 @@ class WPGalleryCustomLinks {
 			$target = '';
 			$preserve_click = '';
 			$remove_link = false;
+			$additional_css_classes = '';
 			$attachment_id = intval( $attachment_id ); 
 			
 			// See if we have a custom url for this attachment image
@@ -241,6 +256,11 @@ class WPGalleryCustomLinks {
 				// This should allow _blank by default lady to set her gallery to _self at once
 				$target = '_self';
 			}
+			// See if we have additional css classes for this attachment image
+			$attachment_meta = get_post_meta( $attachment_id, '_gallery_link_additional_css_classes', true );
+			if( $attachment_meta ) {
+				$additional_css_classes = trim( $attachment_meta );
+			}
 
 			// See how to handle click events for this attachment image
 			$attachment_meta = get_post_meta( $attachment_id, '_gallery_link_preserve_click', true );
@@ -257,14 +277,14 @@ class WPGalleryCustomLinks {
 				$remove_link = true;
 			}
 			
-			if( $link != '' || $target != '' || $remove_link ) {
+			if( $link != '' || $target != '' || $remove_link || $additional_css_classes != '' ) {
 				// Replace the attachment href
 				$needle = get_attachment_link( $attachment_id );
-				$output = self::replace_link( $needle, $link, $target, $preserve_click, $remove_link, $output );
+				$output = self::replace_link( $needle, $link, $target, $preserve_click, $remove_link, $additional_css_classes, $output );
 
 				// Replace the file href
 				list( $needle ) = wp_get_attachment_image_src( $attachment_id, '' );
-				$output = self::replace_link( $needle, $link, $target, $preserve_click, $remove_link, $output );
+				$output = self::replace_link( $needle, $link, $target, $preserve_click, $remove_link, $additional_css_classes, $output );
 				// Also, in case of jetpack photon with tiled galleries...
 				if( function_exists( 'jetpack_photon_url' ) ) {
 					// The CDN url currently is generated with "$subdomain = rand( 0, 2 );",
@@ -280,7 +300,7 @@ class WPGalleryCustomLinks {
 							$needle_part_1 = preg_replace( '/\d+$/', '', $needle_parts[0] );
 							$needle_part_2 = '.wp.com' . $needle_parts[1];
 							$needle_reassembled = $needle_part_1 . $j . $needle_part_2;
-							$output = self::replace_link( $needle_reassembled, $link, $target, $preserve_click, $remove_link, $output );
+							$output = self::replace_link( $needle_reassembled, $link, $target, $preserve_click, $remove_link, $additional_css_classes, $output );
 						}
 					}
 				}
@@ -293,7 +313,7 @@ class WPGalleryCustomLinks {
 					if( is_array( $attachment_sizes ) && count( $attachment_sizes ) > 0 ) {
 						foreach( $attachment_sizes as $attachment_size => $attachment_info ) {
 							list( $needle ) = wp_get_attachment_image_src( $attachment_id, $attachment_size );
-							$output = self::replace_link( $needle, $link, $target, $preserve_click, $remove_link, $output );
+							$output = self::replace_link( $needle, $link, $target, $preserve_click, $remove_link, $additional_css_classes, $output );
 						} // End of foreach attachment size
 					} // End if we have attachment sizes
 				} // End if we have attachment metadata (specifically sizes)
@@ -303,13 +323,17 @@ class WPGalleryCustomLinks {
 		return $output;
 	} // End function apply_filter_post_gallery()
 	
-	private static function replace_link( $default_link, $custom_link, $target, $preserve_click, $remove_link, $output ) {
+	private static function replace_link( $default_link, $custom_link, $target, $preserve_click, $remove_link, $additional_css_classes, $output ) {
 		// Build the regex for matching/replacing
 		$needle = preg_quote( $default_link );
 		$needle = str_replace( '/', '\/', $needle );
 		$needle = '/href\s*=\s*["\']' . $needle . '["\']/';
 		if( preg_match( $needle, $output ) > 0 ) {
-			$classes_to_add = '';
+			if( $additional_css_classes != '' ) {
+				$classes_to_add = $additional_css_classes . ' ';
+			} else {
+				$classes_to_add = '';
+			}
 		
 			// Remove Link
 			if( $remove_link ) {
