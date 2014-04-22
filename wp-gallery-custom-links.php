@@ -55,6 +55,13 @@ class WPGalleryCustomLinks {
 		add_filter( 'post_gallery', array( self::$class_name, 'apply_filter_post_gallery' ), 999, 2 );
 		
 		// Require the javascript to disable lightbox
+		add_action( 'wp_enqueue_scripts', array( self::$class_name, 'do_action_wp_enqueue_scripts' ) );
+		
+		// Load translations
+		load_plugin_textdomain( self::$textdomain_id, false, basename( dirname( __FILE__ ) ) . '/languages' );
+	} // End function init()
+	
+	public static function do_action_wp_enqueue_scripts() {
 		wp_enqueue_script(
 			'wp-gallery-custom-links-js',
 			plugins_url( '/wp-gallery-custom-links.js', __FILE__ ),
@@ -62,10 +69,7 @@ class WPGalleryCustomLinks {
 			'1.1',
 			true
 		);
-		
-		// Load translations
-		load_plugin_textdomain( self::$textdomain_id, false, basename( dirname( __FILE__ ) ) . '/languages' );
-	} // End function init()
+	}
 	
 	public static function apply_filter_attachment_fields_to_edit( $form_fields, $post ) {
 		$help_css = 'display:none;position:absolute;background-color:#ffffe0;text-align:left;border:1px solid #dfdfdf;padding:10px;width:75%;font-weight:normal;border-radius:3px;';
