@@ -2,13 +2,13 @@
 /*
 Plugin Name: WP Gallery Custom Links
 Plugin URI: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-links/
-Description: Specifiy custom links for WordPress gallery images (instead of attachment or file only).
-Version: 1.10.0
+Description: Specify custom links for WordPress gallery images (instead of attachment or file only).
+Version: 1.10.1
 Author: Four Lights Web Development
 Author URI: http://www.fourlightsweb.com
 License: GPL2
 
-Copyright 2012 Four Lights Web Development, LLC. (email : development@fourlightsweb.com)
+Copyright 2014 Four Lights Web Development, LLC. (email : development@fourlightsweb.com)
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License, version 2, as 

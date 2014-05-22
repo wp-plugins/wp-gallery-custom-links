@@ -3,8 +3,8 @@ Contributors: fourlightsweb
 Donate link: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-links/#donate
 Tags: gallery links, gallery link, gallery
 Requires at least: 3.3.1
-Tested up to: 3.8.1
-Stable tag: 1.10.0
+Tested up to: 3.9.1
+Stable tag: 1.10.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -141,6 +141,10 @@ the same styles to `<img>` tags without a link around them.
 
 == Changelog ==
 
+= 1.10.1 =
+* Changed javascript to queue in wp_enqueue_scripts hook instead of the all-encompassing init.
+* Added a translation for Spanish, courtesy of Andrew Kurtis (thanks!)
+
 = 1.10.0 =
 * By popular demand, added the ability to add additional css classes to each image link in the gallery.
 * Added a translation for German, courtesy of Martin Stehle (thanks!)
@@ -236,6 +240,10 @@ directly attached to the post.
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.10.1 =
+* Changed javascript to queue in wp_enqueue_scripts hook instead of the all-encompassing init.
+* Added a translation for Spanish, courtesy of Andrew Kurtis (thanks!)
 
 = 1.10.0 =
 * By popular demand, added the ability to add additional css classes to each image link in the gallery.
