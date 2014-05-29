@@ -143,7 +143,7 @@ the same styles to `<img>` tags without a link around them.
 
 = 1.10.1 =
 * Changed javascript to queue in wp_enqueue_scripts hook instead of the all-encompassing init.
-* Added a translation for Spanish, courtesy of Andrew Kurtis (thanks!)
+* Added a translation for Spanish, courtesy of Andrew Kurtis of WebHostingHub (thanks!)
 
 = 1.10.0 =
 * By popular demand, added the ability to add additional css classes to each image link in the gallery.
@@ -243,7 +243,7 @@ directly attached to the post.
 
 = 1.10.1 =
 * Changed javascript to queue in wp_enqueue_scripts hook instead of the all-encompassing init.
-* Added a translation for Spanish, courtesy of Andrew Kurtis (thanks!)
+* Added a translation for Spanish, courtesy of Andrew Kurtis of WebHostingHub (thanks!)
 
 = 1.10.0 =
 * By popular demand, added the ability to add additional css classes to each image link in the gallery.
