@@ -3,7 +3,7 @@
 Plugin Name: WP Gallery Custom Links
 Plugin URI: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-links/
 Description: Specify custom links for WordPress gallery images (instead of attachment or file only).
-Version: 1.10.1
+Version: 1.10.2
 Author: Four Lights Web Development
 Author URI: http://www.fourlightsweb.com
 License: GPL2
@@ -301,7 +301,7 @@ class WPGalleryCustomLinks {
 					for( $j = 0; $j < 10; $j++ ) {
 						$needle_parts = explode( '.wp.com', jetpack_photon_url( $needle ) );
 						if( count( $needle_parts ) == 2 ) {
-							$needle_part_1 = preg_replace( '/\d+$/', '', $needle_parts[0] );
+							$needle_part_1 = preg_replace( '/\d+$/U', '', $needle_parts[0] );
 							$needle_part_2 = '.wp.com' . $needle_parts[1];
 							$needle_reassembled = $needle_part_1 . $j . $needle_part_2;
 							$output = self::replace_link( $needle_reassembled, $link, $target, $preserve_click, $remove_link, $additional_css_classes, $output );
@@ -331,7 +331,7 @@ class WPGalleryCustomLinks {
 		// Build the regex for matching/replacing
 		$needle = preg_quote( $default_link );
 		$needle = str_replace( '/', '\/', $needle );
-		$needle = '/href\s*=\s*["\']' . $needle . '["\']/';
+		$needle = '/href\s*=\s*["\']' . $needle . '["\']/U';
 		if( preg_match( $needle, $output ) > 0 ) {
 			if( $additional_css_classes != '' ) {
 				$classes_to_add = $additional_css_classes . ' ';
@@ -430,13 +430,13 @@ class WPGalleryCustomLinks {
 		// javascript later
 		if( preg_match( '/<a[^>]*href\s*=\s*["\']' . $needle . '["\'][^>]*class\s*=\s*["\'][^"\']*["\'][^>]*>/', $output ) > 0 ) {
 			// href comes before class
-			$output = preg_replace( '/(<a[^>]*href\s*=\s*["\']' . $needle . '["\'][^>]*class\s*=\s*["\'][^"\']*)(["\'][^>]*>)/', '$1 '.$class.'$2', $output );
+			$output = preg_replace( '/(<a[^>]*href\s*=\s*["\']' . $needle . '["\'][^>]*class\s*=\s*["\'][^"\']*)(["\'][^>]*>)/U', '$1 '.$class.'$2', $output );
 		} elseif( preg_match( '/<a[^>]*class\s*=\s*["\'][^"\']*["\'][^>]*href\s*=\s*["\']' . $needle . '["\'][^>]*>/', $output ) > 0 ) {
 			// href comes after class
-			$output = preg_replace( '/(<a[^>]*class\s*=\s*["\'][^"\']*)(["\'][^>]*href\s*=\s*["\']' . $needle . '["\'][^>]*>)/', '$1 '.$class.'$2', $output );
+			$output = preg_replace( '/(<a[^>]*class\s*=\s*["\'][^"\']*)(["\'][^>]*href\s*=\s*["\']' . $needle . '["\'][^>]*>)/U', '$1 '.$class.'$2', $output );
 		} else {
 			// No previous class
-			$output = preg_replace( '/(<a[^>]*href\s*=\s*["\']' . $needle . '["\'][^>]*)(>)/', '$1 class="'.$class.'"$2', $output );
+			$output = preg_replace( '/(<a[^>]*href\s*=\s*["\']' . $needle . '["\'][^>]*)(>)/U', '$1 class="'.$class.'"$2', $output );
 		} // End if we have a class on the a tag or not
 		
 		return $output;
@@ -450,13 +450,13 @@ class WPGalleryCustomLinks {
 		// Add a target to the link (or overwrite what's there)
 		if( preg_match( '/<a[^>]*href\s*=\s*["\']' . $needle . '["\'][^>]*target\s*=\s*["\'][^"\']*["\'][^>]*>/', $output ) > 0 ) {
 			// href comes before target
-			$output = preg_replace( '/(<a[^>]*href\s*=\s*["\']' . $needle . '["\'][^>]*target\s*=\s*["\'])[^"\']*(["\'][^>]*>)/', '$1'.$target.'$2', $output );
+			$output = preg_replace( '/(<a[^>]*href\s*=\s*["\']' . $needle . '["\'][^>]*target\s*=\s*["\'])[^"\']*(["\'][^>]*>)/U', '$1'.$target.'$2', $output );
 		} elseif( preg_match( '/<a[^>]*target\s*=\s*["\'][^"\']*["\'][^>]*href\s*=\s*["\']' . $needle . '["\'][^>]*>/', $output ) > 0 ) {
 			// href comes after target
-			$output = preg_replace( '/(<a[^>]*target\s*=\s*["\'])[^"\']*(["\'][^>]*href\s*=\s*["\']' . $needle . '["\'][^>]*>)/', '$1'.$target.'$2', $output );
+			$output = preg_replace( '/(<a[^>]*target\s*=\s*["\'])[^"\']*(["\'][^>]*href\s*=\s*["\']' . $needle . '["\'][^>]*>)/U', '$1'.$target.'$2', $output );
 		} else {
 			// No previous target
-			$output = preg_replace( '/(<a[^>]*href\s*=\s*["\']' . $needle . '["\'][^>]*)(>)/', '$1 target="'.$target.'"$2', $output );
+			$output = preg_replace( '/(<a[^>]*href\s*=\s*["\']' . $needle . '["\'][^>]*)(>)/U', '$1 target="'.$target.'"$2', $output );
 		} // End if we have a class on the a tag or not
 		
 		return $output;
