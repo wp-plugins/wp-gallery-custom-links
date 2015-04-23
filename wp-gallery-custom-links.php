@@ -3,7 +3,7 @@
 Plugin Name: WP Gallery Custom Links
 Plugin URI: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-links/
 Description: Specify custom links for WordPress gallery images (instead of attachment or file only).
-Version: 1.10.2
+Version: 1.10.3
 Author: Four Lights Web Development
 Author URI: http://www.fourlightsweb.com
 License: GPL2
@@ -97,7 +97,8 @@ class WPGalleryCustomLinks {
 			'input'	=> 'html',
 			'html'	=> '
 				<select name="attachments['.$post->ID.'][gallery_link_target]" id="attachments['.$post->ID.'][gallery_link_target]">
-					<option value="">'.__( 'Same Window', self::$textdomain_id ).'</option>
+					<option value="">'.__( 'Do Not Change', self::$textdomain_id ).'</option>
+					<option value="_self"'.($target_value == '_self' ? ' selected="selected"' : '').'>'.__( 'Same Window', self::$textdomain_id ).'</option>
 					<option value="_blank"'.($target_value == '_blank' ? ' selected="selected"' : '').'>'.__( 'New Window', self::$textdomain_id ).'</option>
 				</select>'
 		);
@@ -234,20 +235,6 @@ class WPGalleryCustomLinks {
 			$attachment_meta = get_post_meta( $attachment_id, '_gallery_link_target', true );
 			if( $attachment_meta ) {
 				$target = $attachment_meta;
-			}
-			if( trim( $target ) == '' ) {
-				// If empty string ("Same Window") is selected, set target to _self
-				$target = '_self';
-				// ^^ I'm still a little iffy on the above:
-				// Most people's galleries open things in the same window, except that one lady's theme,
-				// but if I default empty string ("Same Window") to mean "same window" instead of "whatever it normally does" then
-				// she'd have to override every gallery if she wanted to keep her theme's normal behavior.
-				// Shouldn't it be the other way around?  But if I leave it the way it is, the alternative
-				// is she'd have to modify her theme to default to new window in order to open in the same
-				// window at all, and most people don't have that skill level.  But I also don't want
-				// the text "Same Window" to be misleading if it really means "just do what you normally do."
-				// Am I thinking too hard about this? I guess this is what happens when you don't distinguish
-				// between "default" and "separate override option."
 			}
 			if( isset( $attr['open_all_in_new_window'] ) && strtolower( trim( $attr['open_all_in_new_window'] ) ) === 'true' ) {
 				// Override setting if the gallery shortcode says to open everything in a new window

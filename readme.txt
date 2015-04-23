@@ -4,7 +4,7 @@ Donate link: http://www.fourlightsweb.com/wordpress-plugins/wp-gallery-custom-li
 Tags: gallery links, gallery link, gallery
 Requires at least: 3.3.1
 Tested up to: 4.2
-Stable tag: 1.10.2
+Stable tag: 1.10.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -147,6 +147,9 @@ accomplish this, which is outside the scope of this plugin.
 
 == Changelog ==
 
+= 1.10.3 =
+* Added a "Do Not Change" default target option to improve performance by reducing the number of regexes to apply "_self" on every gallery item. If your theme opens all gallery items in a new window by default and you prefer to keep them in the same window, you will need to add open_all_in_same_window="true" to your gallery shortcode.
+
 = 1.10.2 =
 * Added a translation for Portuguese, courtesy of Carlos Jordão (thanks!)
 * Added the U ungreedy modifier to regular expressions to attempt to resolve occasional not-easily-reproduced blank page issues
@@ -251,6 +254,9 @@ directly attached to the post.
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.10.3 =
+* Added a "Do Not Change" default target option to improve performance by reducing the number of regexes to apply "_self" on every gallery item. If your theme opens all gallery items in a new window by default and you prefer to keep them in the same window, you will need to add open_all_in_same_window="true" to your gallery shortcode.
 
 = 1.10.2 =
 * Added a translation for Portuguese, courtesy of Carlos Jordão (thanks!)
